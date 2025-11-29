@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="OrbitalDiagram3D/OrbitalDiagram3D.vcxproj" Id="e891904e-4d87-4df1-a9ca-b7dc7b697838" />
+</Solution>
