@@ -21,7 +21,7 @@
 #include "simulation/Simulation.h"
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 int setUpWindow(GLFWwindow* window);
-void processInput(GLFWwindow* window, double dt);
+void processInput(GLFWwindow* window, double dt, Simulation* simulation);
 
 glm::mat4 view = glm::mat4(1.0f);
 Camera camera(glm::vec3(0.0f, 0.0f, 40.0f));
@@ -57,7 +57,7 @@ int main() {
 		deltaTime = currentTime - lastFrame;
 		lastFrame = currentTime;
 		simulation->simulationStep();
-		processInput(window, deltaTime);
+		processInput(window, deltaTime, simulation);
 		//render
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -102,7 +102,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	render->changeScreen(width, height);
 }
 
-void processInput(GLFWwindow* window, double dt) {
+void processInput(GLFWwindow* window, double dt, Simulation* simulation) {
 	if (Keyboard::key(GLFW_KEY_ESCAPE))
 		glfwSetWindowShouldClose(window, true);
 	// change mix value
@@ -123,6 +123,13 @@ void processInput(GLFWwindow* window, double dt) {
 	}
 	if (Keyboard::key(GLFW_KEY_SPACE)) {
 		camera.updateCameraPosition(CameraDirection::UP, dt);
+	}
+
+	if ((Keyboard::key(GLFW_KEY_UP)) and (Keyboard::keyChanged(GLFW_KEY_UP))) {
+		simulation->increaseSimulationStep();
+	}
+	if ((Keyboard::key(GLFW_KEY_DOWN)) and (Keyboard::keyChanged(GLFW_KEY_DOWN))) {
+		simulation->decreaseSimulationStep();
 	}
 
 	double dx = Mouse::getDX(), dy = Mouse::getDY();

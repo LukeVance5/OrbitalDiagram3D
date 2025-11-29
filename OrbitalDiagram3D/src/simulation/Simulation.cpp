@@ -12,16 +12,17 @@ Simulation::Simulation() {
     lastTime = 0.0f;
 	currentTime = 0.0f;
 	std::vector<MeshStruct> BodyStructs;
+    int simSteps[] = {1,60, 3600,86400,259200};
+	for (int i = 0; i < sizeof(simSteps) / sizeof(simSteps[0]); i++) {
+        simulationSteps.push_back(simSteps[i]);
+    }
 }
 void Simulation::simulationStep() {
     currentTime = glfwGetTime();
 	double deltaTime = currentTime - lastTime;
 	lastTime = currentTime;
 	MeshStruct ms = BodyStructs.front();
-    std::cout << deltaTime << " Time " << std::endl;
-	//std::cout << ms.bodies.size() << " bodies before update:" << std::endl;
-    unsigned int physics_step = 86400; //3600; // 1 hour per simulation step
-	Physics::UpdateBodies(BodyStructs.front().bodies,(float) physics_step * deltaTime);
+	Physics::UpdateBodies(BodyStructs.front().bodies,(float) simulationSteps.at(physics_step) * deltaTime);
     std::cout << ms.bodies.front()->position[0] << " bodies after update:" << std::endl;
 	return;
 }
@@ -38,6 +39,17 @@ void Simulation::addObject(std::shared_ptr<Body> body) {
     }
 }
 
+void Simulation::increaseSimulationStep() {
+    if (physics_step < simulationSteps.size() - 1) {
+        physics_step++;
+	}
+}
+
+void Simulation::decreaseSimulationStep() {
+    if (physics_step > 0) {
+        physics_step--;
+    }
+}
 std::vector<MeshStruct> Simulation::getBodyStructs() {
     return BodyStructs;
 }
