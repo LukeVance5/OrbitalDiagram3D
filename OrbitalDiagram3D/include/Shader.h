@@ -10,8 +10,9 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "OrbitalDiagram3DExport.h"
 
-class Shader {
+class OD_API Shader {
 public:
 	unsigned int id;
 	Shader(const char* vertexShaderPath, const char* fragmentShaderPath);

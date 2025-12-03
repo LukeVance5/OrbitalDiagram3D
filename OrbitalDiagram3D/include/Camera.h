@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "OrbitalDiagram3DExport.h"
 
 enum class CameraDirection {
 	NONE = 0,
@@ -15,7 +16,7 @@ enum class CameraDirection {
 	DOWN
 };
 
-class Camera {
+class OD_API Camera {
 public:
 	glm::vec3 cameraPos;
 	glm::vec3 cameraFront;

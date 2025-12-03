@@ -4,4 +4,6 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="OrbitalDiagram3D/OrbitalDiagram3D.vcxproj" Id="e891904e-4d87-4df1-a9ca-b7dc7b697838" />
+  <Project Path="OrbitalDiagram3DApp/OrbitalDiagram3DApp.vcxproj" Id="05aab6b1-33d3-42df-8cdf-b034cd074649" />
+  <Project Path="OrbitalDiagram3DTest/OrbitalDiagram3DTest.vcxproj" Id="d9b072b2-d765-4479-831c-465ec77197a2" />
 </Solution>

@@ -1,8 +1,8 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <memory>
-#include "Body/body.h"
-#include "simulation/Physics.h"
+#include "body.h"
+#include "Physics.h"
 
 const float G = 6.674e-29f;
 std::vector<glm::vec3> Physics::CalculateForces(const std::vector<std::shared_ptr<Body>>& bodies) {

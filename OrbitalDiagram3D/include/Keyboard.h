@@ -4,8 +4,8 @@
 
 #include<glad/glad.h>
 #include <GLFW/glfw3.h>
-
-class Keyboard {
+#include "OrbitalDiagram3DExport.h"
+class OD_API Keyboard {
 public:
 	// key state callback
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);

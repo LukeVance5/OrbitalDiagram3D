@@ -4,8 +4,8 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-class Mouse {
+#include "OrbitalDiagram3DExport.h"
+class OD_API Mouse {
 public:
 	static void cursorPosCallback(GLFWwindow* window, double _x, double _y);
 	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);

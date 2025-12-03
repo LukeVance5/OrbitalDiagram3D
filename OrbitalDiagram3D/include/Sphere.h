@@ -4,9 +4,9 @@
 #include <memory>
 #include "Vertex.h"
 #include "Mesh.h"
+#include "OrbitalDiagram3DExport.h"
 
-
-class Sphere: public Mesh {
+class OD_API Sphere: public Mesh {
 	public:
 		static std::shared_ptr<Sphere> Instance();
 	private:

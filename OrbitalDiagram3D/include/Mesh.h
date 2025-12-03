@@ -3,7 +3,8 @@
 #define MESH_H
 #include <vector>
 #include "Vertex.h"
-class Mesh {
+#include "OrbitalDiagram3DExport.h"
+class OD_API Mesh {
 public:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
