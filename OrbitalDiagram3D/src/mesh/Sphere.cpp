@@ -7,8 +7,8 @@ std::shared_ptr <Sphere> Sphere::Instance() {
     return instance;
 }
 Sphere::Sphere() {
-	float sectors = 24;
-	float stacks = 24;
+	float sectors = 48;
+	float stacks = 48;
     generateVertices(stacks,sectors);
     generateIndices(stacks, sectors);
     generateBuffers();

@@ -21,7 +21,7 @@
 
 
 
-OrbitalApp::OrbitalApp() : camera(glm::vec3(0.0f, 0.0f, 40.0f)), SCR_WIDTH(800), SCR_HEIGHT(600), render(nullptr), simulation(nullptr) {
+OrbitalApp::OrbitalApp() : camera(glm::vec3(149597.0f, 0.0f, 40.0f)), SCR_WIDTH(2000), SCR_HEIGHT(1000), render(nullptr), simulation(nullptr) {
 
 
 }
@@ -41,14 +41,17 @@ int OrbitalApp::run() {
 	
 	simulation = new Simulation();
 	unsigned int moonTextureID = TextureLoader::LoadTexture("assets/images/moon.jpg");
+	unsigned int sunTextureID = TextureLoader::LoadTexture("assets/images/sun.jpg");
 	unsigned int earthTextureID = TextureLoader::LoadTexture("assets/images/earth.jpg");
 	std::string type = "body";
-	std::cout << "Loaded texture ID: " << earthTextureID << std::endl;
 	std::shared_ptr<Mesh> mesh = Sphere::Instance();
-	std::shared_ptr<Body> body1 = std::make_shared<Body>("first", 1.734f, 7.348e22f, glm::vec3(-384.0f, 0, 0), glm::vec3(0, 0, 0.00122f), type, moonTextureID);
-	std::shared_ptr<Body> body2 = std::make_shared<Body>("second", 6.378f, 5.972e24f, glm::vec3(0, 0, 0), glm::vec3(0), type, earthTextureID);
+	std::shared_ptr<Body> body1 = std::make_shared<Body>("sun", 696.34f, 1.9885e30f, glm::vec3(0, 0, 0), glm::vec3(0), type, sunTextureID);
+	std::shared_ptr<Body> body2 = std::make_shared<Body>("earth", 6.378f, 5.972e24f, glm::vec3(149597.0f, 0, 0), glm::vec3(0, 0, 0.2987f), type, earthTextureID);
+	std::shared_ptr<Body> body3 = std::make_shared<Body>("moon", 1.734f, 7.348e22f, glm::vec3(149597.0f - 384.0f, 0, 0), glm::vec3(0, 0, 0.00122f + 0.2987f), type, moonTextureID);
+	
 	simulation->addObject(body1);
 	simulation->addObject(body2);
+	simulation->addObject(body3);
 	render = new Render(window, simulation, &camera, SCR_WIDTH, SCR_HEIGHT);
 	while (!glfwWindowShouldClose(window)) {
 		double currentTime = glfwGetTime();
@@ -128,14 +131,25 @@ void OrbitalApp::processInput(GLFWwindow* window, double dt) {
 	if (Keyboard::key(GLFW_KEY_SPACE)) {
 		camera.updateCameraPosition(CameraDirection::UP, dt);
 	}
-
 	if ((Keyboard::key(GLFW_KEY_UP)) and (Keyboard::keyChanged(GLFW_KEY_UP))) {
-		simulation->increaseSimulationStep();
+		camera.increaseCameraSpeed();
 	}
 	if ((Keyboard::key(GLFW_KEY_DOWN)) and (Keyboard::keyChanged(GLFW_KEY_DOWN))) {
+		camera.decreaseCameraSpeed();
+	}
+	if ((Keyboard::key(GLFW_KEY_PERIOD)) and (Keyboard::keyChanged(GLFW_KEY_PERIOD))) {
+		simulation->increaseSimulationStep();
+	}
+	if ((Keyboard::key(GLFW_KEY_COMMA)) and (Keyboard::keyChanged(GLFW_KEY_COMMA))) {
 		simulation->decreaseSimulationStep();
 	}
-
+	if ((Keyboard::key(GLFW_KEY_TAB)) and (Keyboard::keyChanged(GLFW_KEY_TAB))) {
+		camera.trackNextBody(simulation->getObjectStructs());
+	}
+	if ((Keyboard::key(GLFW_KEY_GRAVE_ACCENT)) and (Keyboard::keyChanged(GLFW_KEY_GRAVE_ACCENT))) {
+		std::cout << "Accent went down" << std::endl;
+		camera.untrackBody();
+	}
 	double dx = Mouse::getDX(), dy = Mouse::getDY();
 	if ((dx != 0 || dy != 0) && (Mouse::button(GLFW_MOUSE_BUTTON_RIGHT))) {
 		camera.updateCameraDirection(dx, dy);
@@ -145,7 +159,6 @@ void OrbitalApp::processInput(GLFWwindow* window, double dt) {
 	if (scrollDy != 0) {
 		camera.updateCameraZoom(scrollDy);
 	}
-
 }
 
 void OrbitalApp::onFramebufferResize(int width, int height)

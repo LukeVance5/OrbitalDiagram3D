@@ -7,6 +7,7 @@ Body::Body(const std::string& name, float radius, float mass, glm::vec3 position
 	this->type = type;
 	this->position = position;
 	this->velocity = velocity;
+	this->parent = nullptr;
 }
 
 
@@ -17,5 +18,6 @@ Body::Body(const std::string& name, float radius, float mass, glm::vec3 position
 	this->type = type;
 	this->position = position;
 	this->velocity = velocity;
+	this->parent = nullptr;
 	this->textureID = textureID;
 }

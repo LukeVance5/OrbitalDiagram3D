@@ -37,3 +37,25 @@ void Physics::UpdateBodies(std::vector<std::shared_ptr<Body>>& bodies, float del
 		bodies[i]->velocity += acceleration * deltaTime;
 	}
 }
+
+void Physics::largerPull(std::shared_ptr<Body>& curr, std::shared_ptr<Body>& pParent) {
+	if (curr->mass > pParent->mass) {
+		return;
+	}
+	else if (curr->parent == nullptr) {
+		curr->parent = pParent;
+	}
+	std::shared_ptr<Body> currParent = curr->parent;
+	glm::vec3 directionCurrParent = curr->position - currParent->position;
+	float distanceCurrParent = glm::length(directionCurrParent);
+	float currPull = (float)((double)G) * (((double)curr->mass) * ((double)curr->parent->mass)) / (((double)distanceCurrParent) * ((double)distanceCurrParent));
+
+
+	glm::vec3 directionPParent = curr->position - currParent->position;
+	float distancePParent = glm::length(directionPParent);
+	float pPull = (float)((double) G) * (((double)curr->mass) * ((double)pParent->mass)) / (((double)distancePParent) * ((double)distancePParent));
+	if (pPull > currPull) {
+		curr->parent = pParent;
+	}
+	return;
+}

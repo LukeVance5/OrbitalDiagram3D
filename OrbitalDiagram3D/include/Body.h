@@ -14,6 +14,7 @@ class OD_API Body{
 		glm::vec3 position;
 		glm::vec3 velocity;
 		unsigned int textureID = 0;
+		std::shared_ptr<Body> parent;
 		Body(const std::string& name, float radius, float mass, glm::vec3 position, glm::vec3 velocity, std::string type);
 		Body(const std::string& name, float radius, float mass, glm::vec3 position, glm::vec3 velocity, std::string type, unsigned int textureID);
 };

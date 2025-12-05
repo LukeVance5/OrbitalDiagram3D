@@ -19,7 +19,6 @@ void Simulation::simulationStep() {
 	lastTime = currentTime;
 	ObjectStruct ms = ObjectStructs.front();
 	Physics::UpdateBodies(ObjectStructs.front().bodies,(float) simulationSteps.at(physics_step) * deltaTime);
-    std::cout << ms.bodies.front()->position[0] << " bodies after update:" << std::endl;
 	return;
 }
 
