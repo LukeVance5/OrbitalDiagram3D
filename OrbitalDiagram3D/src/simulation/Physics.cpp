@@ -37,7 +37,7 @@ void Physics::UpdateBodies(std::vector<std::shared_ptr<Body>>& bodies, float del
 		bodies[i]->velocity += acceleration * deltaTime;
 	}
 }
-
+// This function finds the object with the largest pull that has a larger mass than itself, to help draw object trajectory
 void Physics::largerPull(std::shared_ptr<Body>& curr, std::shared_ptr<Body>& pParent) {
 	if (curr->mass > pParent->mass) {
 		return;

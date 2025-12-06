@@ -142,6 +142,7 @@
     <ClCompile Include="src\main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="src\mesh\Circle.cpp" />
     <ClCompile Include="src\mesh\Cube.cpp" />
     <ClCompile Include="src\mesh\Mesh.cpp" />
     <ClCompile Include="src\OrbitalApp.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="src\simulation\Simulation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Circle.h" />
     <ClInclude Include="include\Cube.h" />
     <ClInclude Include="include\OrbitalDiagram3DExport.h" />
     <ClInclude Include="include\Body.h" />

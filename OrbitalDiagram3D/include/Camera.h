@@ -35,17 +35,18 @@ public:
 	void updateCameraZoom(double dy);
 	void increaseCameraSpeed();
 	void decreaseCameraSpeed();
-	void moveIfTracking();
 	void trackNextBody(const std::vector<ObjectStruct>& objectStructs);
+	void updateCameraVectors();
+	void updateIfTracked();
 	void untrackBody();
 	glm::mat4 getViewMatrix();
 private:
 	std::shared_ptr<Body> trackedBody = nullptr;
-	void updateCameraVectors();
-	unsigned int speeds[5] = { 10,20, 50,100,200 };
+	unsigned int speeds[7] = { 10,20, 50,100,200, 1000, 10000 };
 	unsigned int speedIndex = 0;
-	unsigned int speedSteps = 5;
-	float mouseSensitivity = 0.1f;
+	unsigned int speedSteps = 7;
+	const float mouseSensitivityRegular = 0.1f;
+	const float mouseSensitivityTracked = 0.01f;
 	int trackBodyIndex = -1;
 };
 

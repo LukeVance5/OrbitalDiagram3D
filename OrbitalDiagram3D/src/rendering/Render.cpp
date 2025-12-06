@@ -33,7 +33,7 @@ bool Render::isAllowed(const std::string& type) {
 	return false;
 }
 void Render::update() {
-	camera->moveIfTracking();
+	camera->updateCameraVectors();
 	glm::mat4 projection = glm::mat4(1.0f);
 	glm::mat4 view = glm::mat4(1.0f);
 	projection = getProjectionMatrix(); 

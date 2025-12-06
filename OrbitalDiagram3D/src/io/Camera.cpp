@@ -1,17 +1,25 @@
 #include "camera.h"
+#include <stdio.h>
+#include <iostream>
 Camera::Camera(glm::vec3 position) 
  : cameraPos(position),
  worldUp(glm::vec3(0.0f,1.0f, 0.0f)),
  yaw(-90.0f),
  pitch(0.0f),
- zoom(45.0f),
+ zoom(90.0f),
  cameraFront(glm::vec3(0.0f,0.0f, -1.0f)){
 	updateCameraVectors();
 }
 
 void Camera::updateCameraDirection(double dx, double dy) {
-	yaw += dx*this->mouseSensitivity;
-	pitch += dy*this->mouseSensitivity;
+	float mouseSensitivity;
+	if (trackedBody != nullptr) {
+		mouseSensitivity = mouseSensitivityTracked;
+	} else {
+		mouseSensitivity = mouseSensitivityRegular;
+	}
+	yaw += dx*mouseSensitivity;
+	pitch += dy*mouseSensitivity;
 	if (pitch > 89.0f) {
 		pitch = 89.0f;
 	} else if (pitch < -89.0f) {
@@ -45,16 +53,19 @@ void Camera::updateCameraPosition(CameraDirection direction, double dt) {
 	}
 }
 void Camera::updateCameraZoom(double dy) {
-	if (zoom >= 1.0f && zoom <= 45.0f) {
+	if (zoom >= 1.0f && zoom <= 90.0f) {
 		zoom -= (float)dy;
 	} else if (zoom < 1.0f) {
 		zoom = 1.0f;
 	}
-	else if (zoom > 45.0f) {
-		zoom = 45.0f;
+	else if (zoom > 90.0f) {
+		zoom = 90.0f;
 	}
 }
 glm::mat4 Camera::getViewMatrix() {
+	if (trackedBody != nullptr) {
+		return glm::lookAt(cameraPos, trackedBody->position, worldUp);
+	}
 	return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 }
 
@@ -70,26 +81,41 @@ void Camera::decreaseCameraSpeed() {
 	}
 }
 void Camera::updateCameraVectors() {
+	if (trackedBody != nullptr) {
+		updateIfTracked();
+		return;
+	}
 	glm::vec3 direction;
 	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	direction.y = sin(glm::radians(pitch));
 	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	
 	cameraFront = glm::normalize(direction);
 	cameraRight = glm::normalize(glm::cross(cameraFront, worldUp));
 	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 }
+/*
+This function causes the camera to use a coordinate system centered on the tracked body.
+The reason why pitch and yaw are left in their degree form is to allow for the user to rotate freely around the body
 
-void Camera::moveIfTracking() {
-	if (trackedBody != nullptr) {
-		cameraPos = trackedBody->position + glm::vec3(0.0f, trackedBody->radius * 5.0f, trackedBody->radius * 10.0f);
-		cameraFront = glm::normalize(trackedBody->position - cameraPos);
-		updateCameraVectors();
-	}
+CameraRight and CameraUp a recalculated to be used in untrackedBody().
+*/
+void Camera::updateIfTracked() {
+	float rad = trackedBody->radius;
+	float x = 5.0f*rad * cos(pitch) * cos(yaw);
+	float y = 5.0f*rad * sin(pitch);
+	float z = 5.0f*rad * cos(pitch) * sin(yaw);
+	cameraPos = trackedBody->position + glm::vec3(x, y, z);
+	cameraFront = glm::normalize(trackedBody->position - cameraPos);
+	cameraRight = glm::normalize(glm::cross(cameraFront, worldUp));
+	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 }
 
+// Tracks the next body in the list of objectStructs
 void Camera::trackNextBody(const std::vector<ObjectStruct>& objectStructs) {
 	if (objectStructs.empty()) return;
 	trackBodyIndex++;
+	std::cout << "Tracking body index: " << trackBodyIndex << std::endl;
 	unsigned int bodyCount = 0;
 	for (const auto& objStruct : objectStructs) {
 		for (const auto& body : objStruct.bodies) {
@@ -101,13 +127,18 @@ void Camera::trackNextBody(const std::vector<ObjectStruct>& objectStructs) {
 		}
 	}
 	if (trackBodyIndex >= bodyCount) {
-		trackBodyIndex = -1;
-		trackedBody = nullptr;
+		untrackBody();
 	}
 }
 
+// Untracks the body but keeps the camera in the same position and orientation
 void Camera::untrackBody() {
 	trackBodyIndex = -1;
 	trackedBody = nullptr;
+	pitch = glm::asin(cameraFront.y);
+	yaw = glm::atan(cameraFront.z, cameraFront.x);
+	pitch = glm::degrees(pitch);
+	yaw = glm::degrees(yaw);
+	pitch = glm::degrees(glm::clamp(glm::radians(pitch), -glm::radians(89.0f), glm::radians(89.0f)));
 }
 

@@ -8,6 +8,7 @@ Body::Body(const std::string& name, float radius, float mass, glm::vec3 position
 	this->position = position;
 	this->velocity = velocity;
 	this->parent = nullptr;
+	this->spinaxis = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
 
@@ -20,4 +21,5 @@ Body::Body(const std::string& name, float radius, float mass, glm::vec3 position
 	this->velocity = velocity;
 	this->parent = nullptr;
 	this->textureID = textureID;
+	this->spinaxis = glm::vec3(0.0f, 1.0f, 0.0f);
 }
