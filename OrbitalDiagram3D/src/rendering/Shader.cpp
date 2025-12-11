@@ -21,6 +21,30 @@ Shader::Shader(const char* vertexShaderPath, const char* fragementShaderPath) {
 	glDeleteShader(fragShader);
 }
 
+Shader::Shader(const char* vertexShaderPath,const char* geometryShaderPath, const char* fragementShaderPath) {
+	int success;
+	char infoLog[512];
+
+	GLuint vertexShader = compileShader(vertexShaderPath, GL_VERTEX_SHADER);
+	GLuint geometryShader = compileShader(geometryShaderPath, GL_GEOMETRY_SHADER);
+	GLuint fragShader = compileShader(fragementShaderPath, GL_FRAGMENT_SHADER);
+
+	id = glCreateProgram();
+	glAttachShader(id, vertexShader);
+	glAttachShader(id, geometryShader);
+	glAttachShader(id, fragShader);
+	glLinkProgram(id);
+	glGetProgramiv(id, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(id, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(geometryShader);
+	glDeleteShader(fragShader);
+}
+
 void Shader::activate() {
 	glUseProgram(id);
 }

@@ -17,11 +17,12 @@
 #include "Body.h"
 #include "Shader.h"
 #include "TextureLoader.h"
+unsigned int w = 1600;
+unsigned int h = 900;
 
 
 
-
-OrbitalApp::OrbitalApp() : camera(glm::vec3(149597.0f, 0.0f, 40.0f)), SCR_WIDTH(2000), SCR_HEIGHT(1000), render(nullptr), simulation(nullptr) {
+OrbitalApp::OrbitalApp() : camera(glm::vec3(149597.0f, 0.0f, 40.0f)), SCR_WIDTH(w), SCR_HEIGHT(h), render(nullptr), simulation(nullptr) {
 
 
 }

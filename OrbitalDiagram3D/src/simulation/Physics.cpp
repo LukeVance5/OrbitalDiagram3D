@@ -3,8 +3,7 @@
 #include <memory>
 #include "body.h"
 #include "Physics.h"
-
-const float G = 6.674e-29f;
+#include "Units.h"
 std::vector<glm::vec3> Physics::CalculateForces(const std::vector<std::shared_ptr<Body>>& bodies) {
 	std::vector<glm::vec3> forces;
 	if (bodies.empty()) return forces;
@@ -18,7 +17,7 @@ std::vector<glm::vec3> Physics::CalculateForces(const std::vector<std::shared_pt
 			glm::vec3 direction = bodies[j]->position - bodies[i]->position;
 			float distance = glm::length(direction);
 			if (distance <= 0.0f) continue; // avoid division by zero or negative
-			float forceMagnitude = (float) ((double)G) * (((double)bodies[i]->mass) * ((double)bodies[j]->mass)) / (((double)distance) * ((double)distance));
+			float forceMagnitude = (float) ((double) Units::G) * (((double)bodies[i]->mass) * ((double)bodies[j]->mass)) / (((double)distance) * ((double)distance));
 			glm::vec3 forceVector = glm::normalize(direction) * forceMagnitude;
 			forces[i] += forceVector;
 		}
@@ -48,12 +47,12 @@ void Physics::largerPull(std::shared_ptr<Body>& curr, std::shared_ptr<Body>& pPa
 	std::shared_ptr<Body> currParent = curr->parent;
 	glm::vec3 directionCurrParent = curr->position - currParent->position;
 	float distanceCurrParent = glm::length(directionCurrParent);
-	float currPull = (float)((double)G) * (((double)curr->mass) * ((double)curr->parent->mass)) / (((double)distanceCurrParent) * ((double)distanceCurrParent));
+	float currPull = (float)((double)Units::G) * (((double)curr->mass) * ((double)curr->parent->mass)) / (((double)distanceCurrParent) * ((double)distanceCurrParent));
 
 
 	glm::vec3 directionPParent = curr->position - currParent->position;
 	float distancePParent = glm::length(directionPParent);
-	float pPull = (float)((double) G) * (((double)curr->mass) * ((double)pParent->mass)) / (((double)distancePParent) * ((double)distancePParent));
+	float pPull = (float)((double) Units::G) * (((double)curr->mass) * ((double)pParent->mass)) / (((double)distancePParent) * ((double)distancePParent));
 	if (pPull > currPull) {
 		curr->parent = pParent;
 	}

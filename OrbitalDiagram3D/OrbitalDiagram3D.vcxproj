@@ -146,6 +146,7 @@
     <ClCompile Include="src\mesh\Cube.cpp" />
     <ClCompile Include="src\mesh\Mesh.cpp" />
     <ClCompile Include="src\OrbitalApp.cpp" />
+    <ClCompile Include="src\rendering\RenderTrajectories.cpp" />
     <ClCompile Include="src\rendering\Render.cpp" />
     <ClCompile Include="src\rendering\Shader.cpp" />
     <ClCompile Include="src\mesh\Sphere.cpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="src\rendering\TextureLoader.cpp" />
     <ClCompile Include="src\simulation\Physics.cpp" />
     <ClCompile Include="src\simulation\Simulation.cpp" />
+    <ClCompile Include="src\simulation\Trajectory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Circle.h" />
@@ -163,6 +165,8 @@
     <ClInclude Include="include\Keyboard.h" />
     <ClInclude Include="include\Mouse.h" />
     <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\Trajectory.h" />
+    <ClInclude Include="include\Units.h" />
     <ClInclude Include="include\Vertex.h" />
     <ClInclude Include="include\OrbitalApp.h" />
     <ClInclude Include="include\Render.h" />
@@ -174,11 +178,14 @@
     <ClInclude Include="include\Skybox.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\fragment_core.glsl" />
-    <None Include="assets\fragment_core2.glsl" />
-    <None Include="assets\vertex_skybox.glsl" />
-    <None Include="assets\fragment_skybox.glsl" />
-    <None Include="assets\vertex_core.glsl" />
+    <None Include="assets\shaders\fragment_core.glsl" />
+    <None Include="assets\shaders\fragment_core2.glsl" />
+    <None Include="assets\shaders\fragment_trajectory.glsl" />
+    <None Include="assets\shaders\geometry_trajectory.glsl" />
+    <None Include="assets\shaders\vertex_skybox.glsl" />
+    <None Include="assets\shaders\fragment_skybox.glsl" />
+    <None Include="assets\shaders\vertex_core.glsl" />
+    <None Include="assets\shaders\vertex_trajectory.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\images\earth.jpg" />

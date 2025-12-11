@@ -46,8 +46,9 @@ private:
 	unsigned int speedIndex = 0;
 	unsigned int speedSteps = 7;
 	const float mouseSensitivityRegular = 0.1f;
-	const float mouseSensitivityTracked = 0.01f;
+	const float mouseSensitivityTracked = 0.05f;
 	int trackBodyIndex = -1;
+	float radialDistance = 0.0f;
 };
 
 #endif CAMERA_H

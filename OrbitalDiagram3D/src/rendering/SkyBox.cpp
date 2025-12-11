@@ -5,7 +5,7 @@
 Skybox::Skybox() {
 	cubeMesh = Cube::Instance();
 	bindTextures();
-	this->shader = std::make_shared<Shader>("assets/vertex_skybox.glsl", "assets/fragment_skybox.glsl");
+	this->shader = std::make_shared<Shader>("assets/shaders/vertex_skybox.glsl", "assets/shaders/fragment_skybox.glsl");
 	if (!this->shader) {
 		std::cerr << "Skybox shader failed to compile!" << std::endl;
 	}

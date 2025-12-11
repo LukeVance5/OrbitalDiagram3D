@@ -69,6 +69,12 @@
     <ClCompile Include="src\mesh\Circle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\rendering\RenderTrajectories.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\simulation\Trajectory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Shader.h">
@@ -122,13 +128,22 @@
     <ClInclude Include="include\Circle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Trajectory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Units.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\fragment_core2.glsl" />
-    <None Include="assets\vertex_core.glsl" />
-    <None Include="assets\fragment_core.glsl" />
-    <None Include="assets\fragment_skybox.glsl" />
-    <None Include="assets\vertex_skybox.glsl" />
+    <None Include="assets\shaders\fragment_core2.glsl" />
+    <None Include="assets\shaders\vertex_core.glsl" />
+    <None Include="assets\shaders\fragment_core.glsl" />
+    <None Include="assets\shaders\fragment_skybox.glsl" />
+    <None Include="assets\shaders\vertex_skybox.glsl" />
+    <None Include="assets\shaders\vertex_trajectory.glsl" />
+    <None Include="assets\shaders\geometry_trajectory.glsl" />
+    <None Include="assets\shaders\fragment_trajectory.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\images\image2.png">

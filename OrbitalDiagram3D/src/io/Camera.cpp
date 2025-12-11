@@ -15,11 +15,14 @@ void Camera::updateCameraDirection(double dx, double dy) {
 	float mouseSensitivity;
 	if (trackedBody != nullptr) {
 		mouseSensitivity = mouseSensitivityTracked;
+		yaw -= dx * mouseSensitivity;
+		pitch -= dy * mouseSensitivity;
 	} else {
 		mouseSensitivity = mouseSensitivityRegular;
+		yaw += dx * mouseSensitivity;
+		pitch += dy * mouseSensitivity;
 	}
-	yaw += dx*mouseSensitivity;
-	pitch += dy*mouseSensitivity;
+	
 	if (pitch > 89.0f) {
 		pitch = 89.0f;
 	} else if (pitch < -89.0f) {
@@ -53,14 +56,26 @@ void Camera::updateCameraPosition(CameraDirection direction, double dt) {
 	}
 }
 void Camera::updateCameraZoom(double dy) {
-	if (zoom >= 1.0f && zoom <= 90.0f) {
-		zoom -= (float)dy;
-	} else if (zoom < 1.0f) {
-		zoom = 1.0f;
+	if (trackedBody != nullptr) {
+		radialDistance -= (radialDistance * (float) dy ) / 10.0f;
+		if (radialDistance < trackedBody->radius * 1.1f) {
+			radialDistance = trackedBody->radius * 1.1f;
+		} else if (radialDistance > trackedBody->radius * 100.0f) {
+			radialDistance = trackedBody->radius * 100.0f;
+		}
+	} else {
+		if (zoom >= 1.0f && zoom <= 90.0f) {
+			zoom -= (float)dy;
+		}
+		else if (zoom < 1.0f) {
+			zoom = 1.0f;
+		}
+		else if (zoom > 90.0f) {
+			zoom = 90.0f;
+		}
 	}
-	else if (zoom > 90.0f) {
-		zoom = 90.0f;
-	}
+	return;
+	
 }
 glm::mat4 Camera::getViewMatrix() {
 	if (trackedBody != nullptr) {
@@ -101,10 +116,9 @@ The reason why pitch and yaw are left in their degree form is to allow for the u
 CameraRight and CameraUp a recalculated to be used in untrackedBody().
 */
 void Camera::updateIfTracked() {
-	float rad = trackedBody->radius;
-	float x = 5.0f*rad * cos(pitch) * cos(yaw);
-	float y = 5.0f*rad * sin(pitch);
-	float z = 5.0f*rad * cos(pitch) * sin(yaw);
+	float x = radialDistance * cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+	float y = radialDistance * sin(glm::radians(pitch));
+	float z = radialDistance * cos(glm::radians(pitch)) * sin(glm::radians(yaw));
 	cameraPos = trackedBody->position + glm::vec3(x, y, z);
 	cameraFront = glm::normalize(trackedBody->position - cameraPos);
 	cameraRight = glm::normalize(glm::cross(cameraFront, worldUp));
@@ -121,6 +135,7 @@ void Camera::trackNextBody(const std::vector<ObjectStruct>& objectStructs) {
 		for (const auto& body : objStruct.bodies) {
 			if (bodyCount == trackBodyIndex) {
 				trackedBody = body;
+				radialDistance = trackedBody->radius * 5.0f;
 				return;
 			}
 			bodyCount++;

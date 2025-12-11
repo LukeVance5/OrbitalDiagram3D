@@ -16,6 +16,7 @@ class OD_API Shader {
 public:
 	unsigned int id;
 	Shader(const char* vertexShaderPath, const char* fragmentShaderPath);
+	Shader(const char* vertexShaderPath, const char* geometryShaderPath, const char* fragementShaderPath);
 	void activate();
 
 	// utils

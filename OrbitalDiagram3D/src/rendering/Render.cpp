@@ -15,7 +15,7 @@ Render::Render(GLFWwindow* window, Simulation* simulation, Camera* camera, unsig
 }
 
 void Render::initShaders() {
-	std::shared_ptr<Shader> shader = std::make_shared<Shader>("assets/vertex_core.glsl", "assets/fragment_core.glsl");
+	std::shared_ptr<Shader> shader = std::make_shared<Shader>("assets/shaders/vertex_core.glsl", "assets/shaders/fragment_core.glsl");
 	shaders["body"] = shader;
 }
 // Instantiates the meshes used for rendering for each possible mesh type
