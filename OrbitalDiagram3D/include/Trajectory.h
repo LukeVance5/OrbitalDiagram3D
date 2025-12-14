@@ -23,6 +23,7 @@ namespace Trajectory {
 		float Omega; // longitude of ascending node
 		float v; // true anomaly
 	};
+	constexpr float MIN_ANGLE = -1e-2f; 
 	constexpr float MAX_ECCENTRICIY = 0.98f;
 	constexpr float EPSILON = 1e-6f;
 	TrajectoryStruct OD_API calculateTrajectory(const Body& body, const Body& parent);
