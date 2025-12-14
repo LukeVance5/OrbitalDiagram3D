@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Trajectory.h"
 #include "trajectoryTest.h"	
 #include "Units.h"
@@ -39,24 +39,24 @@ namespace TrajectoryTests
 			glm::vec3 r_orbital = glm::vec3(r_mag * glm::cos(nu_rad), 0.0f, -r_mag * glm::sin(nu_rad));
 			glm::vec3 v_orbital = glm::vec3(C * (-glm::sin(nu_rad)), 0.0f, -C * (e + glm::cos(nu_rad)));
 
-
-			// R_X(i)
-			glm::mat3 R2 = glm::mat3(1.0f, 0.0f, 0.0f,
-				0.0f, glm::cos(i_rad), -glm::sin(i_rad),
-				0.0f, glm::sin(i_rad), glm::cos(i_rad));
-
 			glm::mat3 R1 = glm::mat3(
-				glm::cos(arg_rad), -glm::sin(arg_rad), 0.0f,  // Column 0 (Note the sign of c0z)
-				glm::sin(arg_rad), glm::cos(arg_rad), 0.0f,                             // Column 1
-				0.0f,0.0f, 1.0f    // Column 2 (Note the sign of c2x)
+				cos(arg_rad), 0.0f, sin(arg_rad),
+				0.0f, 1.0f, 0.0f,
+				-sin(arg_rad), 0.0f, cos(arg_rad)
 			);
 
-			// R3: R_Y(Omega) - Final Quadrant Fix
-			glm::mat3 R3 = glm::mat3(
-				glm::cos(omega_rad), 0.0f, glm::sin(omega_rad), // Column 0
-				0.0f, 1.0f, 0.0f,                               // Column 1
-				-glm::sin(omega_rad), 0.0f, glm::cos(omega_rad)  // Column 2
+			glm::mat3 R2 = glm::mat3(
+				1.0f, 0.0f, 0.0f,
+				0.0f, cos(i_rad), -sin(i_rad),
+				0.0f, sin(i_rad), cos(i_rad)
 			);
+
+			glm::mat3 R3 = glm::mat3(
+				cos(omega_rad), 0.0f, sin(omega_rad),
+				0.0f, 1.0f, 0.0f,
+				-sin(omega_rad), 0.0f, cos(omega_rad)
+			);
+
 			glm::mat3 Rotation = R3 * R2 * R1;
 
 			// 3. Final Inertial R/V
@@ -84,7 +84,7 @@ namespace TrajectoryTests
 	}
 	
 	static TEST_F(TrajectoryTestFixtureBase, ElipticalOrbitTestNoInclination) {
-		float a = 10000.0f / Units::DISTANCE_SCALE; 
+		float a = 2*TEST_DISTANCE; 
 		float eccentricity = 0.2f;
 		float constexpr argument = glm::radians(45.0f);
 		float constexpr v = glm::radians(0.0f); // true anomaly at periapsis
@@ -130,11 +130,11 @@ namespace TrajectoryTests
 
 	TEST_F(TrajectoryTestFixtureBase, InclinedOrbitTest) {
 		// Define Keplerian elements in radians
-		const float A = 10000.0f / Units::DISTANCE_SCALE;
+		const float A = 2*TEST_DISTANCE;
 		const float E = 0.2f;
 		const float I_RAD = glm::radians(30.0f);   // 30 degrees inclination
 		const float OMEGA_RAD = glm::radians(60.0f); // 60 degrees Ascending Node
-		const float ARG_RAD = glm::radians(45.0f); // 45 degrees Argument of Periapsis
+		const float ARG_RAD = glm::radians(0.0f); // 0 Argument of Periapsis
 		const float NU_RAD = glm::radians(0.0f);   // True Anomaly at Periapsis
 
 		glm::vec3 r, v_vec;
