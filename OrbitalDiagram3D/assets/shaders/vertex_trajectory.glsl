@@ -1,22 +1,41 @@
 #version 330 core
 
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
+// Circle vertex: (cosθ, sinθ)
+layout (location = 0) in vec2 aUnit;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+// Per-instance data
+layout (location = 1) in mat4 oModel;   // rotation + translation
+layout (location = 5) in float oA;      // semi-major axis
+layout (location = 6) in float oE;      // eccentricity
+layout (location = 7) in vec4 oColor;
 
 out VS_OUT {
     vec3 worldPos;
-    vec3 color;
+    vec4 color;
 } vs_out;
 
 void main()
 {
-    vs_out.worldPos = vec3(model * vec4(aPos, 1.0));
-    vs_out.color = aColor;
+    // Map unit circle to your ν convention
+    // aUnit = (cosθ, sinθ) → sinν, cosν
+    float sinNu = aUnit.x;
+    float cosNu = aUnit.y;
 
-    // Don't output final gl_Position — GS will do it
-    gl_Position = vec4(0.0); 
+    // Kepler radius
+    float r = oA * (1.0 - oE * oE) / (1.0 + oE * cosNu);
+
+    // Orbital plane position (X–Z plane, Z reference)
+    vec3 r_orbital = vec3(
+        r * sinNu,   // X
+        0.0,         // Y
+        r * cosNu    // Z
+    );
+
+    // Apply full model matrix (rotation + translation)
+    vec4 world = oModel * vec4(r_orbital, 1.0);
+
+    vs_out.worldPos = world.xyz;
+    vs_out.color = oColor;
+    // GS will apply view/projection
+    gl_Position = vec4(0.0);
 }

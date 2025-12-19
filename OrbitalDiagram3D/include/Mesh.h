@@ -1,17 +1,27 @@
 #pragma once
-#ifndef MESH_H
-#define MESH_H
-#include <vector>
-#include "Vertex.h"
-#include "OrbitalDiagram3DExport.h"
-class OD_API Mesh {
-public:
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
-	unsigned int VAO = 0;
-	unsigned int VBO = 0;
-	unsigned int EBO = 0;
-private:
-};
-#endif 
+#ifndef IMESH_H
+#define IMESH_H
 
+#include <glad/glad.h>
+#include <cstddef>
+
+struct RenderContext; // forward declaration
+
+class Mesh {
+public:
+    virtual ~Mesh() = default;
+
+    // Bind VAO (and any mesh-owned state)
+    virtual void bind() const = 0;
+
+    // Number of vertices or indices to draw
+    virtual std::size_t drawCount() const = 0;
+
+    // OpenGL primitive type (GL_TRIANGLES, GL_LINES, etc.)
+    virtual GLenum primitive() const = 0;
+
+    // Perform the draw (instanced or not)
+    virtual void draw(const RenderContext& ctx) const = 0;
+};
+
+#endif

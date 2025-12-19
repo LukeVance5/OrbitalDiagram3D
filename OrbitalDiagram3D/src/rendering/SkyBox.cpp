@@ -27,22 +27,16 @@ void Skybox::bindTextures() {
 	return;
 }
 
-void Skybox::draw(glm::mat4 projection, glm::mat4 view) {
+void Skybox::draw(glm::mat4 projection, const Camera* camera) {
 	glDepthFunc(GL_LEQUAL);
 	glDepthMask(GL_FALSE);
-	this->shader->activate();
-	shader->setMat4("view", view);
-	shader->setMat4("projection", projection);
-	shader->setInt("skybox", 0);
-	
-	glBindVertexArray(cubeMesh->VAO);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, this->textureID);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-
-
-	glBindVertexArray(0);
+	RenderContext ctx;
+	ctx.view = glm::mat4(glm::mat3(camera->getViewMatrix()));
+	ctx.projection = projection;
+	ctx.textureID = textureID;
+	ctx.shader = this->shader;
+	cubeMesh->bind();
+	cubeMesh->draw(ctx);
 	glDepthMask(GL_TRUE);
 	glDepthFunc(GL_LESS);
 	return;

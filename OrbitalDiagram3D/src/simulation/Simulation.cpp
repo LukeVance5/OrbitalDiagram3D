@@ -13,9 +13,7 @@ Simulation::Simulation() {
     }
 }
 
-void Simulation::simulationStep() {
-    currentTime = glfwGetTime();
-	double deltaTime = currentTime - lastTime;
+void Simulation::simulationStep(double deltaTime) {
 	lastTime = currentTime;
 	ObjectStruct ms = ObjectStructs.front();
 	Physics::UpdateBodies(ObjectStructs.front().bodies,(float) simulationSteps.at(physics_step) * deltaTime);
@@ -23,6 +21,11 @@ void Simulation::simulationStep() {
 }
 
 void Simulation::addObject(std::shared_ptr<Body> body) {
+    if (this->host == nullptr) {
+        addHost(body);
+	} else if (body->getParent() == nullptr) {
+        body->setParent(this->host);
+	}
     std::string type = body->type;
     auto it = std::find_if(ObjectStructs.begin(), ObjectStructs.end(),
         [type](const ObjectStruct& ms) { return ms.type == type; });
@@ -32,6 +35,13 @@ void Simulation::addObject(std::shared_ptr<Body> body) {
     else {
         ObjectStructs.push_back(ObjectStruct{ type, {body} });
     }
+}
+
+void Simulation::addHost(std::shared_ptr<Body> host) {
+	if (host->getParent() != nullptr) {
+        throw std::runtime_error("Host body cannot have a parent.");
+    }
+	this->host = host;
 }
 
 void Simulation::increaseSimulationStep() {
@@ -47,4 +57,8 @@ void Simulation::decreaseSimulationStep() {
 }
 std::vector<ObjectStruct> Simulation::getObjectStructs() {
     return ObjectStructs;
+}
+
+std::shared_ptr<Body> Simulation::getHost() {
+    return host;
 }

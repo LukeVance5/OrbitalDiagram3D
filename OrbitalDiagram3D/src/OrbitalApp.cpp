@@ -13,10 +13,7 @@
 #include "Camera.h"
 #include "Keyboard.h"
 #include "Mouse.h"
-#include "Sphere.h"
-#include "Body.h"
-#include "Shader.h"
-#include "TextureLoader.h"
+#include "SolSystem.h"
 unsigned int w = 1600;
 unsigned int h = 900;
 
@@ -39,26 +36,14 @@ int OrbitalApp::run() {
 	if (val == -1) {
 		return -1;
 	}
-	
-	simulation = new Simulation();
-	unsigned int moonTextureID = TextureLoader::LoadTexture("assets/images/moon.jpg");
-	unsigned int sunTextureID = TextureLoader::LoadTexture("assets/images/sun.jpg");
-	unsigned int earthTextureID = TextureLoader::LoadTexture("assets/images/earth.jpg");
-	std::string type = "body";
-	std::shared_ptr<Mesh> mesh = Sphere::Instance();
-	std::shared_ptr<Body> body1 = std::make_shared<Body>("sun", 696.34f, 1.9885e30f, glm::vec3(0, 0, 0), glm::vec3(0), type, sunTextureID);
-	std::shared_ptr<Body> body2 = std::make_shared<Body>("earth", 6.378f, 5.972e24f, glm::vec3(149597.0f, 0, 0), glm::vec3(0, 0, 0.02987f), type, earthTextureID);
-	std::shared_ptr<Body> body3 = std::make_shared<Body>("moon", 1.734f, 7.348e22f, glm::vec3(149597.0f - 384.0f, 0, 0), glm::vec3(0, 0, 0.00122f + 0.02987f), type, moonTextureID);
-	
-	simulation->addObject(body1);
-	simulation->addObject(body2);
-	simulation->addObject(body3);
+	SolSystem system;
+	simulation = system.getSimulation();
 	render = new Render(window, simulation, &camera, SCR_WIDTH, SCR_HEIGHT);
 	while (!glfwWindowShouldClose(window)) {
 		double currentTime = glfwGetTime();
 		deltaTime = static_cast<float> (currentTime - lastFrame);
 		lastFrame = static_cast<float> (currentTime);
-		simulation->simulationStep();
+		simulation->simulationStep(deltaTime);
 		processInput(window, deltaTime);
 		//render
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);

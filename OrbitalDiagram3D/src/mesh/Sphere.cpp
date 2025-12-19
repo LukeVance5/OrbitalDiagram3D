@@ -71,6 +71,42 @@ void Sphere::generateIndices(float stacks, float sectors) {
     return;
 }
 
+void Sphere::draw(const RenderContext& renderContext) const {
+    //!!! Batch textures or smth later
+    for (auto& body : renderContext.bodies) {
+		std::shared_ptr<Shader> shader = renderContext.shader;
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::vec3 renderPos = body->position - renderContext.camera->cameraPos;
+        model = glm::translate(glm::mat4(1.0f), renderPos);
+        model = glm::scale(model, glm::vec3(body->radius));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        shader->activate();
+        if (body->textureID != 0) {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, body->textureID);
+            shader->setInt("hasTexture", 1);
+            shader->setInt("texture1", 0);
+        }
+        else {
+            shader->setInt("hasTexture", 0);
+        }
+        shader->setMat4("model", model);
+        shader->setMat4("view", renderContext.view);
+        shader->setMat4("projection", renderContext.projection);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(this->indices.size()), GL_UNSIGNED_INT, 0);
+    }
+}
+void Sphere::bind() const {
+    glBindVertexArray(VAO);
+}
+
+std::size_t Sphere::drawCount() const {
+    return indices.size();
+}
+
+GLenum Sphere::primitive() const {
+    return GL_TRIANGLES;
+}
 void Sphere::generateBuffers() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -82,14 +118,14 @@ void Sphere::generateBuffers() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     // Fill VBO
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(
         0,                                // location in shader
         3,                                // size (vec3 → 3 floats)
         GL_FLOAT,                         // type
         GL_FALSE,                         // normalized?
-        sizeof(Vertex),                   // stride (sizeof whole struct)
-        (void*)offsetof(Vertex, Position) // offset in struct
+        sizeof(Vertex3D),                   // stride (sizeof whole struct)
+        (void*)offsetof(Vertex3D, Position) // offset in struct
     );
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -103,8 +139,8 @@ void Sphere::generateBuffers() {
         3,
         GL_FLOAT,
         GL_FALSE,
-        sizeof(Vertex),
-        (void*)offsetof(Vertex, Normal)
+        sizeof(Vertex3D),
+        (void*)offsetof(Vertex3D, Normal)
     );
     glEnableVertexAttribArray(1);
 
@@ -114,8 +150,8 @@ void Sphere::generateBuffers() {
         2,
         GL_FLOAT,
         GL_FALSE,
-        sizeof(Vertex),
-        (void*)offsetof(Vertex, TexCoords)
+        sizeof(Vertex3D),
+        (void*)offsetof(Vertex3D, TexCoords)
     );
     glEnableVertexAttribArray(2);
     glBindVertexArray(0);

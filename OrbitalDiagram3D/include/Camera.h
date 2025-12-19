@@ -39,7 +39,8 @@ public:
 	void updateCameraVectors();
 	void updateIfTracked();
 	void untrackBody();
-	glm::mat4 getViewMatrix();
+	std::shared_ptr<Body> getTrackedBody();
+	glm::mat4 getViewMatrix() const;
 private:
 	std::shared_ptr<Body> trackedBody = nullptr;
 	unsigned int speeds[7] = { 10,20, 50,100,200, 1000, 10000 };

@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Trajectory.h"
 #include "trajectoryTest.h"	
+#include "Body.h"
 #include "Units.h"
 #include <memory>
 
@@ -12,7 +13,7 @@ namespace TrajectoryTests
 		const float PARENT_MASS = 1.0e22f;
 		const float CHILD_MASS = 1.0e20f;
 		const float TEST_DISTANCE = 1.0e9f / Units::DISTANCE_SCALE; // Shared distance constant
-		float mu;
+		float mu = Units::G * (PARENT_MASS * CHILD_MASS);
 
 		// 2. Define shared objects
 		std::shared_ptr<Body> parent;
@@ -25,7 +26,7 @@ namespace TrajectoryTests
 			mu = Units::G * (PARENT_MASS + CHILD_MASS);
 
 			// Initialize shared parent body (can be at origin for simplicity)
-			parent = std::make_shared<Body>("TestParent", 1.0f, PARENT_MASS,
+			parent = Body::create("TestParent", 1.0f, PARENT_MASS,
 				glm::vec3(0), glm::vec3(0), "star");
 		}
 		void CalculateEllipticalState3D(float a, float e, float i_rad, float omega_rad, float arg_rad, float nu_rad, glm::vec3& r_out, glm::vec3& v_out) {
@@ -63,10 +64,16 @@ namespace TrajectoryTests
 			r_out = Rotation * r_orbital;
 			v_out = Rotation * v_orbital;
 		}
+		double angleDiff(double a, double b) {
+			double d = std::fmod(a - b, 2.0 * Units::PI);
+			if (d > Units::PI) d -= 2.0 * Units::PI;
+			if (d < -Units::PI) d += 2.0 * Units::PI;
+			return std::abs(d);
+		}
 	};
 	static TEST_F(TrajectoryTestFixtureBase, CircularOrbitTest) {
 		float speed = glm::sqrt((Units::G * PARENT_MASS) / TEST_DISTANCE); // circular orbit speed
-		child = std::make_shared<Body>("testBody2", 1.0f, 1.0e20f, glm::vec3(0.0, 0.0f, TEST_DISTANCE), glm::vec3(speed, 0.0f, 0.0f), "body");
+		child = Body::create("testBody2", 1.0f, 1.0e20f, glm::vec3(0.0, 0.0f, TEST_DISTANCE), glm::vec3(speed, 0.0f, 0.0f), "body");
 		try {
 			Trajectory::TrajectoryStruct traj = Trajectory::calculateTrajectory(*child, *parent);
 			EXPECT_NEAR(0, traj.eccentricity, 1e-2f);
@@ -79,7 +86,7 @@ namespace TrajectoryTests
 
 	static TEST_F(TrajectoryTestFixtureBase, CircularOrbitTestFlipped) {
 		float speed = glm::sqrt((Units::G * PARENT_MASS) / TEST_DISTANCE); // circular orbit speed
-		child = std::make_shared<Body>("testBody2", 1.0f, 1.0e20f, glm::vec3(0.0, 0.0f, TEST_DISTANCE), glm::vec3(-speed, 0.0f, 0.0f), "body");
+		child = Body::create("testBody2", 1.0f, 1.0e20f, glm::vec3(0.0, 0.0f, TEST_DISTANCE), glm::vec3(-speed, 0.0f, 0.0f), "body");
 		try {
 			Trajectory::TrajectoryStruct traj = Trajectory::calculateTrajectory(*child, *parent);
 			EXPECT_NEAR(0, traj.eccentricity, 1e-2f);
@@ -91,9 +98,9 @@ namespace TrajectoryTests
 	}
 
 	static TEST_F(TrajectoryTestFixtureBase, EscapeVelocityTest) {
-		std::shared_ptr<Body> parent = std::make_shared<Body>("testBody1", 1.0f, 1.0e22f, glm::vec3(0), glm::vec3(0), "body");
+		std::shared_ptr<Body> parent = Body::create("testBody1", 1.0f, 1.0e22f, glm::vec3(0), glm::vec3(0), "body");
 		float speed = glm::sqrt((2.0f * Units::G * PARENT_MASS) / TEST_DISTANCE);
-		child = std::make_shared<Body>("testBody2", 1.0f, 1.0e20f, glm::vec3(TEST_DISTANCE, 0.0f, 0.0f), glm::vec3(0.0f, speed, 0.0f), "body");
+		child = Body::create("testBody2", 1.0f, 1.0e20f, glm::vec3(TEST_DISTANCE, 0.0f, 0.0f), glm::vec3(0.0f, speed, 0.0f), "body");
 		EXPECT_ANY_THROW(Trajectory::TrajectoryStruct traj = Trajectory::calculateTrajectory(*child, *parent));
 	}
 	
@@ -120,7 +127,7 @@ namespace TrajectoryTests
 		glm::vec3 r = Rotation * r_orbital;
 		glm::vec3 v_vec = Rotation * v_orbital;
 		std::cout << r.x << std::endl;
-		child = std::make_shared<Body>("testBody2", 1.0f, 1.0e20f, r, v_vec, "body");
+		child = Body::create("testBody2", 1.0f, 1.0e20f, r, v_vec, "body");
 		try {
 			Trajectory::TrajectoryStruct traj = Trajectory::calculateTrajectory(*child, *parent);
 			EXPECT_NEAR(0, traj.Omega, 1e-2f);
@@ -128,7 +135,7 @@ namespace TrajectoryTests
 			EXPECT_NEAR(0.0f, traj.Normal[0], 1e-2f);
 			EXPECT_NEAR(1.0f, glm::length(traj.Normal), 1e-2f);
 			EXPECT_NEAR(0.0f, traj.Normal[2], 1e-2f);
-			EXPECT_NEAR(argument, traj.omega, 1e-2f);
+			EXPECT_NEAR(0.0f, angleDiff(argument, traj.omega), 1e-2f);
 		}
 		catch (const std::runtime_error& e) {
 			FAIL() << "Exception thrown during parent assignment: " << e.what();
@@ -150,7 +157,7 @@ namespace TrajectoryTests
 		CalculateEllipticalState3D(A, E, I_RAD, OMEGA_RAD, ARG_RAD, NU_RAD, r, v_vec);
 
 		// Setup the child body using the generated state vectors
-		child = std::make_shared<Body>("TestChildInclined", 1.0f, CHILD_MASS, r, v_vec, "planet");
+		child = Body::create("TestChildInclined", 1.0f, CHILD_MASS, r, v_vec, "planet");
 
 		try {
 			Trajectory::TrajectoryStruct traj = Trajectory::calculateTrajectory(*child, *parent);
@@ -158,8 +165,8 @@ namespace TrajectoryTests
 			// Assert the returned elements match the input elements
 			EXPECT_NEAR(E, traj.eccentricity, 1e-2f);       // Eccentricity
 			EXPECT_NEAR(I_RAD, traj.inclination, 1e-2f);    // Inclination
-			EXPECT_NEAR(OMEGA_RAD, traj.Omega, 1e-2f);      // Longitude of Ascending Node
-			EXPECT_NEAR(ARG_RAD, traj.omega, 1e-2f);        // Argument of Periapsis
+			EXPECT_NEAR(0.0f,angleDiff(OMEGA_RAD, traj.Omega), 1e-2f);      // Longitude of Ascending Node
+			EXPECT_NEAR(0.0f, angleDiff(ARG_RAD, traj.omega), 1e-2f);        // Argument of Periapsis
 			EXPECT_NEAR(NU_RAD, traj.v, 1e-2f);             // True Anomaly
 
 			// Assert the normal vector is correct (It should be tilted 30 degrees and swiveled 60 degrees)
@@ -187,7 +194,7 @@ TEST_F(TrajectoryTestFixtureBase, InclinedOrbitTestPeriapsisMovedTrueAnomalyZero
 	CalculateEllipticalState3D(A, E, I_RAD, OMEGA_RAD, ARG_RAD, NU_RAD, r, v_vec);
 
 	// Setup the child body using the generated state vectors
-	child = std::make_shared<Body>("TestChildInclined", 1.0f, CHILD_MASS, r, v_vec, "planet");
+	child = Body::create("TestChildInclined", 1.0f, CHILD_MASS, r, v_vec, "planet");
 
 	try {
 		Trajectory::TrajectoryStruct traj = Trajectory::calculateTrajectory(*child, *parent);
@@ -195,9 +202,9 @@ TEST_F(TrajectoryTestFixtureBase, InclinedOrbitTestPeriapsisMovedTrueAnomalyZero
 		// Assert the returned elements match the input elements
 		EXPECT_NEAR(E, traj.eccentricity, 1e-2f);       // Eccentricity
 		EXPECT_NEAR(I_RAD, traj.inclination, 1e-2f);    // Inclination
-		EXPECT_NEAR(OMEGA_RAD, traj.Omega, 1e-2f);      // Longitude of Ascending Node
-		EXPECT_NEAR(ARG_RAD, traj.omega, 1e-2f);        // Argument of Periapsis
-		EXPECT_NEAR(NU_RAD, traj.v, 1e-2f);             // True Anomaly
+		EXPECT_NEAR(0.0f, angleDiff(OMEGA_RAD, traj.Omega), 1e-2f);      // Longitude of Ascending Node
+		EXPECT_NEAR(0.0f, angleDiff(ARG_RAD, traj.omega), 1e-2f);        // Argument of Periapsis
+		EXPECT_NEAR(0.0f, angleDiff(NU_RAD, traj.v), 1e-2f);             // True Anomaly
 
 		EXPECT_NEAR(1.0f, glm::length(traj.Normal), 1e-4f);
 
@@ -222,7 +229,7 @@ TEST_F(TrajectoryTestFixtureBase, InclinedOrbitTestPeriapsisMovedTrueAnomaly90) 
 	CalculateEllipticalState3D(A, E, I_RAD, OMEGA_RAD, ARG_RAD, NU_RAD, r, v_vec);
 
 	// Setup the child body using the generated state vectors
-	child = std::make_shared<Body>("TestChildInclined", 1.0f, CHILD_MASS, r, v_vec, "planet");
+	child = Body::create("TestChildInclined", 1.0f, CHILD_MASS, r, v_vec, "planet");
 
 	try {
 		Trajectory::TrajectoryStruct traj = Trajectory::calculateTrajectory(*child, *parent);
@@ -230,9 +237,9 @@ TEST_F(TrajectoryTestFixtureBase, InclinedOrbitTestPeriapsisMovedTrueAnomaly90) 
 		// Assert the returned elements match the input elements
 		EXPECT_NEAR(E, traj.eccentricity, 1e-2f);       // Eccentricity
 		EXPECT_NEAR(I_RAD, traj.inclination, 1e-2f);    // Inclination
-		EXPECT_NEAR(OMEGA_RAD, traj.Omega, 1e-2f);      // Longitude of Ascending Node
-		EXPECT_NEAR(ARG_RAD, traj.omega, 1e-2f);        // Argument of Periapsis
-		EXPECT_NEAR(NU_RAD, traj.v, 1e-2f);             // True Anomaly
+		EXPECT_NEAR(0.0f, angleDiff(OMEGA_RAD, traj.Omega), 1e-2f);      // Longitude of Ascending Node
+		EXPECT_NEAR(0.0f, angleDiff(ARG_RAD, traj.omega), 1e-2f);        // Argument of Periapsis
+		EXPECT_NEAR(0.0f, angleDiff(NU_RAD, traj.v), 1e-2f);             // True Anomaly
 		EXPECT_NEAR(1.0f, glm::length(traj.Normal), 1e-4f);
 
 	}

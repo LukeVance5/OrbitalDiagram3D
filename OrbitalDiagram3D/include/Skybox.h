@@ -8,7 +8,7 @@
 class Skybox {
 public:
     Skybox();
-    void draw(glm::mat4 projection, glm::mat4 view);
+    void draw(glm::mat4 projection, const Camera* camera);
 private:
 	void bindTextures();
     std::shared_ptr<Cube> cubeMesh;

@@ -60,8 +60,8 @@ void Camera::updateCameraZoom(double dy) {
 		radialDistance -= (radialDistance * (float) dy ) / 10.0f;
 		if (radialDistance < trackedBody->radius * 1.1f) {
 			radialDistance = trackedBody->radius * 1.1f;
-		} else if (radialDistance > trackedBody->radius * 100.0f) {
-			radialDistance = trackedBody->radius * 100.0f;
+		} else if (radialDistance > trackedBody->radius * 1000.0f) {
+			radialDistance = trackedBody->radius * 1000.0f;
 		}
 	} else {
 		if (zoom >= 1.0f && zoom <= 90.0f) {
@@ -77,7 +77,7 @@ void Camera::updateCameraZoom(double dy) {
 	return;
 	
 }
-glm::mat4 Camera::getViewMatrix() {
+glm::mat4 Camera::getViewMatrix() const {
 	if (trackedBody != nullptr) {
 		return glm::lookAt(cameraPos, trackedBody->position, worldUp);
 	}
@@ -100,7 +100,7 @@ void Camera::updateCameraVectors() {
 		updateIfTracked();
 		return;
 	}
-	glm::vec3 direction;
+	glm::vec3 direction{};
 	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	direction.y = sin(glm::radians(pitch));
 	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -124,7 +124,9 @@ void Camera::updateIfTracked() {
 	cameraRight = glm::normalize(glm::cross(cameraFront, worldUp));
 	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 }
-
+std::shared_ptr<Body> Camera::getTrackedBody() {
+	return trackedBody;
+}
 // Tracks the next body in the list of objectStructs
 void Camera::trackNextBody(const std::vector<ObjectStruct>& objectStructs) {
 	if (objectStructs.empty()) return;
@@ -156,4 +158,3 @@ void Camera::untrackBody() {
 	yaw = glm::degrees(yaw);
 	pitch = glm::degrees(glm::clamp(glm::radians(pitch), -glm::radians(89.0f), glm::radians(89.0f)));
 }
-

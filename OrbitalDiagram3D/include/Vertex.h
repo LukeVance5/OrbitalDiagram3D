@@ -2,13 +2,12 @@
 
 #include <glm/glm.hpp>
 
-struct Vertex {
+struct Vertex3D {
     glm::vec3 Position;
     glm::vec3 Normal;
     glm::vec2 TexCoords;
 };
 
-struct VertexTraj {
-    glm::vec3 Position;
-    glm::vec3 Color;
+struct Vertex2D {
+    glm::vec2 position;
 };

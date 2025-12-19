@@ -1,11 +1,11 @@
 #include "Shader.h"
 
-Shader::Shader(const char* vertexShaderPath, const char* fragementShaderPath) {
+Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath) {
 	int success;
 	char infoLog[512];
 
 	GLuint vertexShader = compileShader(vertexShaderPath, GL_VERTEX_SHADER);
-	GLuint fragShader = compileShader(fragementShaderPath, GL_FRAGMENT_SHADER);
+	GLuint fragShader = compileShader(fragmentShaderPath, GL_FRAGMENT_SHADER);
 
 	id = glCreateProgram();
 	glAttachShader(id, vertexShader);
@@ -21,13 +21,13 @@ Shader::Shader(const char* vertexShaderPath, const char* fragementShaderPath) {
 	glDeleteShader(fragShader);
 }
 
-Shader::Shader(const char* vertexShaderPath,const char* geometryShaderPath, const char* fragementShaderPath) {
+Shader::Shader(const char* vertexShaderPath,const char* geometryShaderPath, const char* fragmentShaderPath) {
 	int success;
 	char infoLog[512];
 
 	GLuint vertexShader = compileShader(vertexShaderPath, GL_VERTEX_SHADER);
 	GLuint geometryShader = compileShader(geometryShaderPath, GL_GEOMETRY_SHADER);
-	GLuint fragShader = compileShader(fragementShaderPath, GL_FRAGMENT_SHADER);
+	GLuint fragShader = compileShader(fragmentShaderPath, GL_FRAGMENT_SHADER);
 
 	id = glCreateProgram();
 	glAttachShader(id, vertexShader);
@@ -103,7 +103,9 @@ void Shader::setFloat(const std::string& name, float value) {
 
 
 
-
+void Shader::set2Float(const std::string& name, float v1, float v2) {
+	glUniform2f(glGetUniformLocation(id, name.c_str()), v1, v2);
+}
 
 void Shader::set4Float(const std::string& name, float v1, float v2, float v3, float v4) {
 	glUniform4f(glGetUniformLocation(id, name.c_str()), v1, v2, v3, v4);

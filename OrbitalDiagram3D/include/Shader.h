@@ -16,7 +16,7 @@ class OD_API Shader {
 public:
 	unsigned int id;
 	Shader(const char* vertexShaderPath, const char* fragmentShaderPath);
-	Shader(const char* vertexShaderPath, const char* geometryShaderPath, const char* fragementShaderPath);
+	Shader(const char* vertexShaderPath, const char* geometryShaderPath, const char* fragmentShaderPath);
 	void activate();
 
 	// utils
@@ -27,7 +27,7 @@ public:
 	void setMat4(const std::string& name, glm::mat4 val);
 
 	void setInt(const std::string& name, int value);
-
+	void set2Float(const std::string& name, float v1, float v2);
 	void set4Float(const std::string& name, float v1, float v2, float v3, float v4);
 
 	void setFloat(const std::string& name, float value);

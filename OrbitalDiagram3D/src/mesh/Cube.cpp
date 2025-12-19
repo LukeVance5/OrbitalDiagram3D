@@ -12,6 +12,32 @@
 		generateBuffers();
 	}
 
+	void Cube ::bind() const {
+		glBindVertexArray(VAO);
+	}
+
+	std::size_t Cube::drawCount() const {
+		return indices.size();
+	}
+
+	GLenum Cube::primitive() const {
+		return GL_TRIANGLES;
+	}
+	//!!! Draw call for cube
+	void Cube::draw(const RenderContext& renderContext) const {
+		std::shared_ptr<Shader> shader = renderContext.shader;
+		shader->activate();
+		shader->setMat4("view", renderContext.view);
+		shader->setMat4("projection", renderContext.projection);
+		shader->setInt("skybox", 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, renderContext.textureID);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+
+
+		glBindVertexArray(0);
+	}
 	void Cube::generateIndices() {
 		vertices.clear();
 		vertices.reserve(8);
@@ -28,7 +54,7 @@
 			-1.0f,  1.0f, -1.0f
 		};
 		for (int i = 0; i < 8; i++) {
-			Vertex vertex;
+			Vertex3D vertex{};
 			vertex.Position = glm::vec3(
 				skyboxVertices[i * 3 + 0],
 				skyboxVertices[i * 3 + 1],
@@ -80,14 +106,14 @@
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 		// Fill VBO
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(
 			0,                                // location in shader
 			3,                                // size (vec3 → 3 floats)
 			GL_FLOAT,                         // type
 			GL_FALSE,                         // normalized?
-			sizeof(Vertex),                   // stride (sizeof whole struct)
-			(void*)offsetof(Vertex, Position) // offset in struct
+			sizeof(Vertex3D),                   // stride (sizeof whole struct)
+			(void*)offsetof(Vertex3D, Position) // offset in struct
 		);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);

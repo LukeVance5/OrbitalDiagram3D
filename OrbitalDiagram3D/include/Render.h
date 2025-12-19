@@ -13,6 +13,7 @@
 #include "Shader.h"
 #include "OrbitalDiagram3DExport.h"
 #include "Skybox.h"
+#include "RenderTrajectories.h"
 #ifndef RENDERER_H
 #define RENDERER_H
 
@@ -28,9 +29,9 @@ class OD_API Render {
 		Camera* camera;
 		std::unordered_map<std::string, std::shared_ptr<Mesh>> meshes;
 		std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
+		RenderTrajectories renderTrajectories;
 		Skybox skybox;
 		unsigned int SCR_WIDTH, SCR_HEIGHT;
-		void draw(std::vector<std::shared_ptr<Body>> bodies, unsigned int indices_size, std::shared_ptr<Shader>& shader);
 		void initShaders();
 		void initMeshes();
 		glm::mat4 getProjectionMatrix();

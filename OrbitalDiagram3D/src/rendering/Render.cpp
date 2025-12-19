@@ -1,12 +1,14 @@
 #include "Render.h"
 #include "Sphere.h"
+#include "RenderContext.h"
 Render::Render(GLFWwindow* window, Simulation* simulation, Camera* camera, unsigned int width, unsigned int height)
 	: window(window),
 	simulation(simulation),
 	camera(camera),
 	SCR_WIDTH(width),
 	SCR_HEIGHT(height),
-	skybox() // constructs Skybox in place, no temporary
+	skybox(), // constructs Skybox in place, no temporary
+	renderTrajectories()
 {
 	meshes = std::unordered_map<std::string, std::shared_ptr<Mesh>>();
 	shaders = std::unordered_map<std::string, std::shared_ptr<Shader>>();
@@ -35,58 +37,33 @@ bool Render::isAllowed(const std::string& type) {
 void Render::update() {
 	camera->updateCameraVectors();
 	glm::mat4 projection = glm::mat4(1.0f);
-	glm::mat4 view = glm::mat4(1.0f);
-	projection = getProjectionMatrix(); 
-	view = glm::mat4(glm::mat3(camera->getViewMatrix()));
+	projection = getProjectionMatrix();
     std::vector<ObjectStruct> objectStructs = simulation->getObjectStructs();
     for (auto& objectStruct : objectStructs) {
         if (!isAllowed(objectStruct.type)) {
             std::cout << "Warning: Object type " << objectStruct.type << " is not supported for rendering." << std::endl;
             continue;
         }
+		RenderContext renderContext;
         std::shared_ptr<Mesh> mesh = this->meshes.at(objectStruct.type);
-        glBindVertexArray(mesh->VAO);
-        draw(objectStruct.bodies, mesh->indices.size(),shaders[objectStruct.type]);
+		renderContext.bodies = objectStruct.bodies;
+		renderContext.shader = shaders[objectStruct.type];
+		renderContext.view = glm::mat4(glm::mat3(camera->getViewMatrix()));
+		renderContext.projection = projection;
+		renderContext.camera = camera;
+		mesh->bind(); 
+		mesh->draw(renderContext);
     }
     glBindVertexArray(0);
-	skybox.draw(projection, view);
+	this->renderTrajectories.drawTrajectories(simulation->getHost(),camera,projection, this->SCR_WIDTH,this->SCR_HEIGHT);
+	skybox.draw(projection,camera);
     glfwSwapBuffers(window);
     glfwPollEvents();
     return;
 }
-
 void Render::changeScreen(int width, int height) {
 	this->SCR_HEIGHT = height;
 	this->SCR_WIDTH = width;
-}
-void Render::draw(std::vector<std::shared_ptr<Body>> bodies, unsigned int indices_size,std::shared_ptr<Shader>& shader) {
-	glm::mat4 view = glm::mat4(1.0f);
-	
-	for (auto& body : bodies) {
-		//render
-		// create transformation for screen
-		glm::mat4 projection = getProjectionMatrix();
-		view = camera->getViewMatrix();
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, body->position);
-		model = glm::scale(model, glm::vec3(body->radius));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f,0.0f));
-		shader->activate();
-		if (body->textureID != 0) {
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, body->textureID);
-			shader->setInt("hasTexture", 1);
-			shader->setInt("texture1", 0);
-		}
-		else {
-			shader->setInt("hasTexture", 0);
-		}
-		shader->setMat4("model", model);
-		shader->setMat4("view", view);
-		shader->setMat4("projection", projection);
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices_size), GL_UNSIGNED_INT, 0);
-	}
-	
 }
 
 glm::mat4 Render::getProjectionMatrix() {

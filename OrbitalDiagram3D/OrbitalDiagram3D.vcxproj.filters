@@ -45,9 +45,6 @@
     <ClCompile Include="src\rendering\Render.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\mesh\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\simulation\Simulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -75,6 +72,12 @@
     <ClCompile Include="src\simulation\Trajectory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\diagrams\SolarSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\diagrams\SolSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Shader.h">
@@ -99,9 +102,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Vertex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Simulation.h">
@@ -132,6 +132,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Units.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RenderTrajectories.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RenderContext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\OrbitalData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SolarSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SolSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

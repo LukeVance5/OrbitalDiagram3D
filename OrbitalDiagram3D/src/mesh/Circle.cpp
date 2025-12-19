@@ -1,62 +1,162 @@
-#include "Circle.h"
+﻿#include "Circle.h"
+#include "OrbitalData.h"
 #include <glad/glad.h>
-
+#include "Shader.h"
+#include "RenderContext.h"
 std::shared_ptr<Circle> Circle::Instance() {
 	static std::shared_ptr<Circle> instance = std::shared_ptr<Circle>(new Circle());
 	return instance;
 }
 
 Circle::Circle() {
-    const int SEGMENTS = 64;
+    const int SEGMENTS = 640;
 	generateVertices(SEGMENTS);
 	generateBuffers();
 }
 
+void Circle::addInstances(const std::vector<OrbitData>& instanceData) {
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        instanceData.size() * sizeof(OrbitData),
+        instanceData.data(),
+        GL_DYNAMIC_DRAW
+    );
+	this->instanceCount = instanceData.size();
+}
 
+void Circle::bind() const {
+    glBindVertexArray(VAO);
+}
+
+void Circle::draw(const RenderContext& renderContext) const {
+    bind();
+    std::shared_ptr<Shader> shader = renderContext.shader;
+
+    shader->activate();
+    shader->setMat4("uView", glm::mat4(glm::mat3(renderContext.camera->getViewMatrix())));
+    shader->setMat4("uProj", renderContext.projection);
+	shader->set2Float("uViewportSize", renderContext.screenWidth, renderContext.screenHeight);
+	shader->setFloat("uLineWidthPx", 2.5f);
+
+    glDrawArraysInstanced(
+        GL_LINE_STRIP,
+        0,
+        this->vertices.size(),
+        static_cast<GLsizei>(instanceCount)
+    );
+
+    glBindVertexArray(0);
+}
+
+std::size_t Circle::drawCount() const {
+    return vertices.size();
+}   
+
+GLenum Circle::primitive() const {
+    return GL_LINE_STRIP;
+}
 
 void Circle::generateVertices(const int SEGMENTS) {
-    const float radius = 1.0f;
-
     vertices.clear();
-    vertices.reserve(SEGMENTS + 1);
+    vertices.reserve(SEGMENTS + 1); // line pairs for GL_LINES
 
-    // Ring
-    for (int i = 0; i <= SEGMENTS; i++) {
-        float angle = (float)i / (float)SEGMENTS * 2.0f * PI;
-
-        float x = cos(angle);
-        float y = sin(angle);
-
-        Vertex v;
-        v.Position = glm::vec3(x * radius, y * radius, 0.0f);
-        v.Normal = glm::vec3(0.0f, 0.0f, 1.0f);
-        v.TexCoords = glm::vec2((x * 0.5f) + 0.5f, (y * 0.5f) + 0.5f);
-
+    for (int i = 0; i <= SEGMENTS; ++i) {
+        float a = float(i) / float(SEGMENTS) * 2.0f * PI;
+        Vertex2D v{};
+        v.position = glm::vec2(cos(a), sin(a));
         vertices.push_back(v);
     }
+
+    for (const Vertex2D element : vertices) {
+        std::cout << "(" << element.position[0] << ",";
+        std::cout << element.position[0] << ")";
+    }
+    std::cout << std::endl;
 }
+
 
 void Circle::generateBuffers() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &instanceVBO);
 
     glBindVertexArray(VAO);
 
-    // Upload vertex data
+    // --------------------
+    // Per-vertex buffer
+    // --------------------
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER,
-        vertices.size() * sizeof(VertexTraj),
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        vertices.size() * sizeof(Vertex2D),
         vertices.data(),
-        GL_STATIC_DRAW);
+        GL_STATIC_DRAW
+    );
 
-    // Position
+    // location 0 : vec2 (cosν, sinν)
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexTraj), (void*)0);
+    glVertexAttribPointer(
+        0,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(Vertex2D),
+        (void*)offsetof(Vertex2D, position)
+    );
 
-    // Normal
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexTraj),
-        (void*)offsetof(VertexTraj, Color));
+    // --------------------
+    // Per-instance buffer
+    // --------------------
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
 
+    // mat4 model → locations 1,2,3,4
+    for (int i = 0; i < 4; ++i) {
+        glEnableVertexAttribArray(1 + i);
+        glVertexAttribPointer(
+            1 + i,
+            4,
+            GL_FLOAT,
+            GL_FALSE,
+            sizeof(OrbitData),
+            (void*)(offsetof(OrbitData, model) + sizeof(glm::vec4) * i)
+        );
+        glVertexAttribDivisor(1 + i, 1);
+    }
+
+    // location 5 : semi-major axis
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(
+        5,
+        1,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(OrbitData),
+        (void*)offsetof(OrbitData, semimajorAxis)
+    );
+    glVertexAttribDivisor(5, 1);
+
+    // location 6 : eccentricity
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(
+        6,
+        1,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(OrbitData),
+        (void*)offsetof(OrbitData, eccentricity)
+    );
+    glVertexAttribDivisor(6, 1);
+
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(
+        7,
+        4,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(OrbitData),
+        (void*)offsetof(OrbitData, color)
+    );
+    glVertexAttribDivisor(7, 1);
     glBindVertexArray(0);
 }

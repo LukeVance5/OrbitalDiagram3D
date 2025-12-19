@@ -1,106 +1,124 @@
 ﻿#include "Trajectory.h"
+#include <memory>
+#include "Units.h"
+#include "Body.h"
 
-Trajectory::TrajectoryStruct Trajectory::calculateTrajectory(const Body& body, const Body& parent) {
-    // Relative position and velocity
-    glm::vec3 r = body.position - parent.position;
-    glm::vec3 v = body.velocity - parent.velocity;
+Trajectory::TrajectoryStruct
+Trajectory::calculateTrajectory(const Body& body, const Body& parent)
+{
+    // Relative position and velocity (DOUBLE)
+    glm::dvec3 r = glm::dvec3(body.position) - glm::dvec3(parent.position);
+    glm::dvec3 v = glm::dvec3(body.velocity) - glm::dvec3(parent.velocity);
 
-    // --- Initial Checks and Constants ---
-    if (glm::length(r) == 0.0f || glm::length(v) == 0.0f) {
+    if (glm::length(r) == 0.0 || glm::length(v) == 0.0) {
         throw std::runtime_error("Relative position or velocity is zero vector in trajectory calculation.");
     }
 
-    float r_mag = glm::length(r);
-    glm::vec3 r_norm = glm::normalize(r);
-    float mu = Units::G * (body.mass + parent.mass); // Gravitational parameter
+    double r_mag = glm::length(r);
+    glm::dvec3 r_norm = glm::normalize(r);
 
-    // --- Core Vectors ---
-    glm::vec3 h = glm::cross(r, v); // Angular momentum
-    float h_mag = glm::length(h);
+    double mu = Units::G * (body.mass + parent.mass); // assume G is double
 
-    // Eccentricity vector
-    glm::vec3 eccentricityVector = (glm::cross(v, h) / mu) - r_norm;
-    float eccentricity = glm::length(eccentricityVector);
+    // --- Angular momentum ---
+    glm::dvec3 h = glm::cross(r, v);
+    double h_mag = glm::length(h);
 
-    if (eccentricity > MAX_ECCENTRICIY) { // Note: MAX_ECCENTRICIY should be 1.0 for parabolic/hyperbolic trajectories
-        throw std::runtime_error("Body is in an escape Trajectory");
+    // --- Eccentricity vector ---
+    glm::dvec3 eccentricityVector =
+        (glm::cross(v, h) / mu) - r_norm;
+
+    double eccentricity = glm::length(eccentricityVector);
+
+    if (eccentricity > MAX_ECCENTRICIY) {
+        throw std::runtime_error("Body is in an escape trajectory.");
     }
 
-    TrajectoryStruct traj;
+    TrajectoryStruct traj{};
 
-    // --- Energy and Semi-Major Axis ---
-    float energy = glm::dot(v, v) * 0.5f - mu / r_mag;
-    traj.semiMajorAxis = -mu / (2.0f * energy);
+    // --- Energy & semi-major axis ---
+    double energy = glm::dot(v, v) * 0.5 - mu / r_mag;
+    traj.semiMajorAxis = -mu / (2.0 * energy);
 
-    // --- Inclination (i) ---
-    // k is the Y-axis pole (0, 1, 0)
-    glm::vec3 k = glm::vec3(0.0f, 1.0f, 0.0f);
-    float i = glm::acos(glm::clamp(h.y / h_mag, -1.0f, 1.0f));
+    // --- Inclination ---
+    glm::dvec3 k(0.0, 1.0, 0.0);
+    double i = glm::acos(glm::clamp(h.y / h_mag, -1.0, 1.0));
     traj.inclination = i;
 
-    // --- Ascending Node Vector (n) ---
-    glm::vec3 node = glm::cross(k, h);
-    float nodeMag = glm::length(node);
+    // --- Ascending node ---
+    glm::dvec3 node = glm::cross(k, h);
+    double nodeMag = glm::length(node);
 
-    // --- Singularity Check for Inclination (i ~ 0 or i ~ 180 deg) ---
-    if (nodeMag < 1e-6f) {
-        // Case: In-Plane Orbit (i = 0 or 180)
-        traj.Omega = 0.0f; // Longitude of Ascending Node is arbitrary/set to zero
+    constexpr double EPS = 1e-12;
 
-        // Calculate Longitude of Periapsis (ϖ) relative to X-axis
-        // Reference X-axis is (1, 0, 0)
-        float cosVarpi = glm::dot(glm::vec3(0.0f, 0.0f, 1.0f), eccentricityVector) / eccentricity;
-        float sinVarpi = glm::dot(glm::vec3(1.0f, 0.0f, 0.0f), eccentricityVector) / eccentricity; // Reference Z-axis
+    // --- Argument of periapsis & RAAN ---
+    if (nodeMag < EPS) {
+        // In-plane orbit
+        traj.Omega = 0.0;
 
-        float Varpi = glm::atan(sinVarpi, cosVarpi);
-        if (Varpi < MIN_ANGLE) { Varpi += 2.0f * Units::PI; }
-        traj.omega = Varpi;
+        double cosVarpi =
+            glm::dot(glm::dvec3(0, 0, 1), eccentricityVector) / eccentricity;
+
+        double sinVarpi =
+            glm::dot(glm::dvec3(1, 0, 0), eccentricityVector) / eccentricity;
+
+        traj.omega = wrapAngle(glm::atan(sinVarpi, cosVarpi));
     }
     else {
-        // Case: Tilted Orbit (0 < i < 180)
-        float Omega = glm::atan(node.x, node.z);
-        if (Omega < MIN_ANGLE) { Omega += 2.0f * Units::PI; }
+        /*
+        double Omega = glm::atan(node.x, node.z);
+        if (Omega < MIN_ANGLE) Omega += 2.0 * Units::PI;
         traj.Omega = Omega;
-        // Calculate dot products for atan2(sin_component, cos_component)
-		float dot = glm::dot(eccentricityVector, node);
-		float norms = eccentricity * nodeMag;
-        float omega = glm::acos(dot / norms);
-        if (omega < MIN_ANGLE) { omega += 2.0f * Units::PI; }
+
+        double dot = glm::dot(eccentricityVector, node);
+        double norms = eccentricity * nodeMag;
+
+        double omega = glm::acos(glm::clamp(dot / norms, -1.0, 1.0));
+        if (omega < MIN_ANGLE) omega += 2.0 * Units::PI;
+
         traj.omega = omega;
+        */
+        double Omega = glm::atan(node.x, node.z);
+        if (Omega < 0.0) Omega += 2.0 * Units::PI;
+        traj.Omega = wrapAngle(Omega);
+
+        // --- Argument of periapsis (ROBUST atan2 FORM) ---
+        double cos_omega =
+            glm::dot(node, eccentricityVector) / (nodeMag * eccentricity);
+
+        double sin_omega =
+            glm::dot(glm::cross(node, eccentricityVector), h) /
+            (nodeMag * eccentricity * h_mag);
+
+        traj.omega = wrapAngle(glm::atan(sin_omega, cos_omega));
     }
 
-    // --- True Anomaly (v) ---
-    // Angle from eccentricity vector (periapsis) to position vector (r)
+    // --- True anomaly ---
+    if (eccentricity < EPS) {
+        // Circular orbit
+        double cos_nu =
+            glm::dot(node, r) / (nodeMag * r_mag);
 
-    // Check for circular orbit singularity (e ~ 0)
-    if (eccentricity < 1e-6f) {
-        // Case: Circular Orbit (e = 0)
-        float cos_nu_circ = glm::dot(node, r) / (nodeMag * r_mag);
-        float sin_nu_circ = glm::dot(h, glm::cross(node, r)) / (h_mag * nodeMag * r_mag);
-        float nu = glm::atan(sin_nu_circ, cos_nu_circ);
-        if (nu < MIN_ANGLE) { nu += 2.0f * Units::PI; }
-        traj.v = fmod(nu, 2.0f * Units::PI);
+        double sin_nu =
+            glm::dot(h, glm::cross(node, r)) / (h_mag * nodeMag * r_mag);
 
+        traj.v = wrapAngle(glm::atan(sin_nu, cos_nu));
     }
     else {
-        // Case: Elliptical Orbit (e > 0)
-        // nu is measured from e-vector (periapsis) to r-vector (position)
+        double cos_nu =
+            glm::dot(eccentricityVector, r) / (eccentricity * r_mag);
 
-        // cos_nu calculation (Angle between e-vector and r-vector)
-        float cos_nu = glm::dot(eccentricityVector, r) / (eccentricity * r_mag);
+        double sin_nu =
+            glm::dot(glm::cross(eccentricityVector, r), h) /
+            (eccentricity * r_mag * h_mag);
 
-        // Use acos for 0 to pi, then check the sign of the radial velocity for 0 to 2pi range
-        float nu = glm::acos(glm::clamp(cos_nu, -1.0f, 1.0f));
-        if (nu < MIN_ANGLE) nu += 2.0f * Units::PI;
-        traj.v = fmod(nu, 2.0f * Units::PI);
+        traj.v = wrapAngle(glm::atan(sin_nu, cos_nu));
     }
 
-
-    // --- Final Assignments ---
-    traj.angularMomentum = h;
-    traj.Normal = glm::normalize(h);
-    traj.node = node; // Node vector (not normalized for consistency with singularity check)
-    traj.eccentriciyVector = eccentricityVector;
+    // --- Final assignments ---
+    traj.angularMomentum = glm::vec3(h);
+    traj.Normal = glm::vec3(glm::normalize(h));
+    traj.node = glm::vec3(node);
+    traj.eccentriciyVector = glm::vec3(eccentricityVector);
     traj.eccentricity = eccentricity;
 
     return traj;

@@ -2,14 +2,14 @@
 
 #ifndef TRAJECTORY_H
 #define TRAJECTORY_H
-#include <memory>
-#include "Body.h"
-#include "Units.h"
 #include <stdexcept>
+#include <glm/glm.hpp>
 #include "OrbitalDiagram3DExport.h"
+#include "Units.h"
 // All angles in this case should be in radians
 
 
+class Body;
 namespace Trajectory {
 	struct OD_API TrajectoryStruct {
 		glm::vec3 angularMomentum;
@@ -26,7 +26,12 @@ namespace Trajectory {
 	constexpr float MIN_ANGLE = -1e-2f; 
 	constexpr float MAX_ECCENTRICIY = 0.98f;
 	constexpr float EPSILON = 1e-6f;
-	TrajectoryStruct OD_API calculateTrajectory(const Body& body, const Body& parent);
+	OD_API TrajectoryStruct calculateTrajectory(const Body& body, const Body& parent);
+	inline double wrapAngle(double a) {
+		a = std::fmod(a, 2.0 * Units::PI);
+		if (a < 0) a += 2.0 * Units::PI;
+		return a;
+	}
 };
  
 #endif
