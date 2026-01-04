@@ -48,7 +48,7 @@
     <ClCompile Include="src\simulation\Simulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\simulation\Physics.cpp">
+    <ClCompile Include="src\simulation\PhysicsEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\rendering\TextureLoader.cpp">
@@ -70,9 +70,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\simulation\Trajectory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\diagrams\SolarSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\diagrams\SolSystem.cpp">
@@ -110,7 +107,7 @@
     <ClInclude Include="include\TextureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Physics.h">
+    <ClInclude Include="include\PhysicsEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\OrbitalApp.h">
@@ -144,9 +141,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\OrbitalData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\SolarSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\SolSystem.h">

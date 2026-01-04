@@ -35,7 +35,7 @@ public:
 	void updateCameraZoom(double dy);
 	void increaseCameraSpeed();
 	void decreaseCameraSpeed();
-	void trackNextBody(const std::vector<ObjectStruct>& objectStructs);
+	void trackNextBody(const std::shared_ptr<Body>& host);
 	void updateCameraVectors();
 	void updateIfTracked();
 	void untrackBody();
@@ -49,6 +49,7 @@ private:
 	const float mouseSensitivityRegular = 0.1f;
 	const float mouseSensitivityTracked = 0.05f;
 	int trackBodyIndex = -1;
+	bool trackNextBodyRecursive(const std::shared_ptr<Body>& parent, int& index);
 	float radialDistance = 0.0f;
 };
 

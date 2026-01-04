@@ -128,30 +128,39 @@ std::shared_ptr<Body> Camera::getTrackedBody() {
 	return trackedBody;
 }
 // Tracks the next body in the list of objectStructs
-void Camera::trackNextBody(const std::vector<ObjectStruct>& objectStructs) {
-	if (objectStructs.empty()) return;
-	trackBodyIndex++;
-	std::cout << "Tracking body index: " << trackBodyIndex << std::endl;
-	unsigned int bodyCount = 0;
-	for (const auto& objStruct : objectStructs) {
-		for (const auto& body : objStruct.bodies) {
-			if (bodyCount == trackBodyIndex) {
-				trackedBody = body;
-				radialDistance = trackedBody->radius * 5.0f;
-				return;
-			}
-			bodyCount++;
+void Camera::trackNextBody(const std::shared_ptr<Body>& host) {
+	if (host == nullptr) return;
+	trackBodyIndex += 1;
+	int index = 0;
+	if (!trackNextBodyRecursive(host, index)) {
+		trackBodyIndex = 0;
+		trackedBody = host;
+	}
+	radialDistance = trackedBody->radius * 5.0f;
+	updateCameraVectors();
+}
+
+bool Camera::trackNextBodyRecursive(const std::shared_ptr<Body>& parent, int& index) {
+	if (index == trackBodyIndex) {
+		trackedBody = parent;
+		return true;
+	}
+	index++;
+	if (parent->getChildren().empty()) {
+		return false;
+	}
+	for (const auto& child : parent->getChildren()) {
+		if (trackNextBodyRecursive(child, index)) {
+			return true;
 		}
 	}
-	if (trackBodyIndex >= bodyCount) {
-		untrackBody();
-	}
+	return false;
 }
 
 // Untracks the body but keeps the camera in the same position and orientation
 void Camera::untrackBody() {
-	trackBodyIndex = -1;
 	trackedBody = nullptr;
+	int trackBodyIndex = -1;
 	pitch = glm::asin(cameraFront.y);
 	yaw = glm::atan(cameraFront.z, cameraFront.x);
 	pitch = glm::degrees(pitch);

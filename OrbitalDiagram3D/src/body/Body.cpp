@@ -1,5 +1,5 @@
 #include "Body.h"
-
+#include <algorithm>
 Body::Body(const std::string& name, float radius, float mass, glm::vec3 position, glm::vec3 velocity, std::string type) {
 	this->name = name;
 	this->radius = radius;
@@ -54,6 +54,26 @@ void Body::clearTrajectory() {
 std::optional<Trajectory::TrajectoryStruct> Body::getTrajectory() {
 	return this->trajectory;
 }
-std::vector<std::shared_ptr<Body>> Body::getChildren() {
+std::vector<std::shared_ptr<Body>>& Body::getChildren() {
 	return children;
+}
+
+void Body::sortChildrenByDistanceRecursive()
+{
+	// Sort direct children by distance to *this*
+	std::sort(children.begin(), children.end(),
+		[this](const std::shared_ptr<Body>& a,
+			const std::shared_ptr<Body>& b)
+		{
+			float da = distanceSq(a->position, this->position);
+			float db = distanceSq(b->position, this->position);
+			return da < db;
+		}
+	);
+
+	// Recurse
+	for (const auto& child : children)
+	{
+		child->sortChildrenByDistanceRecursive();
+	}
 }

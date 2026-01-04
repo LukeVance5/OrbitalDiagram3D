@@ -47,6 +47,7 @@ void RenderTrajectories::createOrbitalData(std::vector<OrbitData>& orbits, std::
 					curr->getParent()->position - cameraPos;
 				model = glm::translate(model, parentRenderPos);
 				od.model = model * rotation;
+				od.color = glm::vec4(curr->orbitColor, 1.0f);
 				orbits.push_back(od);
 			}
 		}
@@ -64,6 +65,7 @@ void RenderTrajectories::createOrbitalData(std::vector<OrbitData>& orbits, std::
 			glm::vec3 parentRenderPos =
 				child->getParent()->position - cameraPos;
 			model = glm::translate(model, parentRenderPos);
+			od.color = glm::vec4(child->orbitColor, 1.0f);
 			od.model = model * rotation;
 			orbits.push_back(od);
 		}

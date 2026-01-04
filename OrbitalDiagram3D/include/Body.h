@@ -59,19 +59,26 @@ class OD_API Body : public std::enable_shared_from_this<Body> {
 		glm::vec3 position;
 		glm::vec3 velocity;
 		glm::vec3 spinaxis;
+		glm::vec3 orbitColor = glm::vec3(1.0f, 1.0f, 1.0f);
 		unsigned int textureID = 0;
 		void addChild(std::shared_ptr<Body> child);
 		void removeChild(std::shared_ptr<Body> child);
 		void setParent(std::shared_ptr<Body> parentBody);
 		void removeParent();
 		std::shared_ptr<Body> getParent();
-		std::vector<std::shared_ptr<Body>> getChildren();
+		std::vector<std::shared_ptr<Body>>& getChildren();
 		void setTrajectory(Trajectory::TrajectoryStruct trajectory);
 		std::optional<Trajectory::TrajectoryStruct> getTrajectory();
 		void clearTrajectory();
+		void sortChildrenByDistanceRecursive();
 	protected:
 		Body(const std::string& name, float radius, float mass, glm::vec3 position, glm::vec3 velocity, std::string type);
 	private:
+		static float distanceSq(const glm::vec3& a, const glm::vec3& b)
+		{
+			glm::vec3 d = a - b;
+			return glm::dot(d, d);
+		}
 		void setVectors();
 		std::weak_ptr<Body> parent;
 		std::vector<std::shared_ptr<Body>> children;

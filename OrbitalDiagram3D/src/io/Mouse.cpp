@@ -89,3 +89,25 @@ bool Mouse::buttonWentUp(int button) {
 bool Mouse::buttonWentDown(int button) {
 	return buttons[button] && buttonChanged(button);
 }
+
+void Mouse::reset()
+{
+	// Clear movement deltas
+	dx = 0.0;
+	dy = 0.0;
+	scrollDX = 0.0;
+	scrollDY = 0.0;
+
+	// Reinitialize mouse state
+	firstMouse = true;
+
+	// Sync last position to current so next delta is zero
+	lastX = x;
+	lastY = y;
+
+	// Clear button change states
+	for (int i = 0; i < GLFW_MOUSE_BUTTON_LAST; ++i)
+	{
+		buttonsChanged[i] = false;
+	}
+}

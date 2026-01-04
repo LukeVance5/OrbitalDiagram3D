@@ -17,11 +17,8 @@
 unsigned int w = 1600;
 unsigned int h = 900;
 
-
-
-OrbitalApp::OrbitalApp() : camera(glm::vec3(149597.0f, 0.0f, 40.0f)), SCR_WIDTH(w), SCR_HEIGHT(h), render(nullptr), simulation(nullptr) {
-
-
+OrbitalApp::OrbitalApp() : camera(glm::vec3(149597.0f, 0.0f, 40.0f)), SCR_WIDTH(800), SCR_HEIGHT(600), render(nullptr), simulation(nullptr) {
+	
 }
 
 int OrbitalApp::run() {
@@ -31,14 +28,22 @@ int OrbitalApp::run() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+	int screenWidth = mode->width;
+	int screenHeight = mode->height;
+	this->SCR_HEIGHT = ((float(screenHeight)) / 1.5);
+	this->SCR_WIDTH = ((float(screenWidth)) / 1.5);
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OrbitalDiagram3D", NULL, NULL);
 	int val = setUpWindow(window);
 	if (val == -1) {
 		return -1;
 	}
 	SolSystem system;
-	simulation = system.getSimulation();
-	render = new Render(window, simulation, &camera, SCR_WIDTH, SCR_HEIGHT);
+	this->simulation = system.getSimulation();
+	this->render = new Render(window, simulation, &camera, SCR_WIDTH, SCR_HEIGHT);
+	camera.trackNextBody(simulation->getHost());
 	while (!glfwWindowShouldClose(window)) {
 		double currentTime = glfwGetTime();
 		deltaTime = static_cast<float> (currentTime - lastFrame);
@@ -96,8 +101,25 @@ void OrbitalApp::framebuffer_size_callback(GLFWwindow* window, int width, int he
 	app->onFramebufferResize(width, height);
 }
 void OrbitalApp::processInput(GLFWwindow* window, double dt) {
-	if (Keyboard::key(GLFW_KEY_ESCAPE))
-		glfwSetWindowShouldClose(window, true);
+	if (Keyboard::keyWentDown(GLFW_KEY_ESCAPE))
+	{
+		// Free cursor
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+		// Disable raw mouse input if used
+		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+
+		Keyboard::setEnabled(false);
+		// Optional: stop mouse look state
+		Mouse::reset();
+	}
+	if (Mouse::buttonWentDown(GLFW_MOUSE_BUTTON_LEFT))
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+		Keyboard::setEnabled(true);
+		Mouse::reset();
+	}
 	// change mix value
 	if (Keyboard::key(GLFW_KEY_W)) {
 		camera.updateCameraPosition(CameraDirection::FORWARD, dt);
@@ -129,8 +151,11 @@ void OrbitalApp::processInput(GLFWwindow* window, double dt) {
 	if ((Keyboard::key(GLFW_KEY_COMMA)) and (Keyboard::keyChanged(GLFW_KEY_COMMA))) {
 		simulation->decreaseSimulationStep();
 	}
+	if ((Keyboard::key(GLFW_KEY_P)) and (Keyboard::keyChanged(GLFW_KEY_P))) {
+		simulation->pauseUnpauseSimulation();
+	}
 	if ((Keyboard::key(GLFW_KEY_TAB)) and (Keyboard::keyChanged(GLFW_KEY_TAB))) {
-		camera.trackNextBody(simulation->getObjectStructs());
+		camera.trackNextBody(simulation->getHost());
 	}
 	if ((Keyboard::key(GLFW_KEY_GRAVE_ACCENT)) and (Keyboard::keyChanged(GLFW_KEY_GRAVE_ACCENT))) {
 		std::cout << "Accent went down" << std::endl;

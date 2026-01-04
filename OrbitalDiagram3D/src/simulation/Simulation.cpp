@@ -1,11 +1,11 @@
 #include "Simulation.h"
 #include "Mesh.h"
 #include "Sphere.h"
-#include "Physics.h"
+#include "PhysicsEngine.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-Simulation::Simulation() {
+Simulation::Simulation() : engine() {
     lastTime = 0.0f;
 	currentTime = 0.0f;
 	for (int i = 0; i < sizeof(simSteps) / sizeof(simSteps[0]); i++) {
@@ -15,8 +15,11 @@ Simulation::Simulation() {
 
 void Simulation::simulationStep(double deltaTime) {
 	lastTime = currentTime;
+    if (this->paused) {
+        return;
+	}
 	ObjectStruct ms = ObjectStructs.front();
-	Physics::UpdateBodies(ObjectStructs.front().bodies,(float) simulationSteps.at(physics_step) * deltaTime);
+	engine.UpdateBodies(ObjectStructs.front().bodies,(float) simulationSteps.at(physics_step) * deltaTime);
 	return;
 }
 
@@ -54,6 +57,10 @@ void Simulation::decreaseSimulationStep() {
     if (physics_step > 0) {
         physics_step--;
     }
+}
+
+void Simulation::pauseUnpauseSimulation() {
+    this->paused = !this->paused;
 }
 std::vector<ObjectStruct> Simulation::getObjectStructs() {
     return ObjectStructs;

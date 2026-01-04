@@ -152,7 +152,7 @@
     <ClCompile Include="src\mesh\Sphere.cpp" />
     <ClCompile Include="src\rendering\SkyBox.cpp" />
     <ClCompile Include="src\rendering\TextureLoader.cpp" />
-    <ClCompile Include="src\simulation\Physics.cpp" />
+    <ClCompile Include="src\simulation\PhysicsEngine.cpp" />
     <ClCompile Include="src\simulation\Simulation.cpp" />
     <ClCompile Include="src\simulation\Trajectory.cpp" />
   </ItemGroup>
@@ -176,7 +176,7 @@
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\Sphere.h" />
     <ClInclude Include="include\TextureLoader.h" />
-    <ClInclude Include="include\Physics.h" />
+    <ClInclude Include="include\PhysicsEngine.h" />
     <ClInclude Include="include\Simulation.h" />
     <ClInclude Include="include\Skybox.h" />
     <ClInclude Include="include\Mesh.h" />

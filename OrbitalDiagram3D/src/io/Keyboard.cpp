@@ -2,8 +2,11 @@
 
 bool Keyboard::keys[GLFW_KEY_LAST] = { false };
 bool Keyboard::keysChanged[GLFW_KEY_LAST] = { false };
+bool Keyboard::inputEnabled = true;
 
 void Keyboard::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (!inputEnabled)
+		return;
 	if (action != GLFW_RELEASE) {
 		if (!keys[key]) {
 			keys[key] = true;
@@ -39,4 +42,14 @@ bool Keyboard::keyWentDown(int key) {
 		return false;
 	}
 	return keyChanged(key) && keys[key];
+}
+
+void Keyboard::setEnabled(bool enabled)
+{
+	inputEnabled = enabled;
+}
+
+bool Keyboard::isEnabled()
+{
+	return inputEnabled;
 }

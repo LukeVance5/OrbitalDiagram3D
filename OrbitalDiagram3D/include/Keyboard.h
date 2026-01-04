@@ -17,7 +17,10 @@ public:
 	static bool keyChanged(int key);
 	static bool keyWentUp(int key);
 	static bool keyWentDown(int key);
+	static bool isEnabled();
+	static void setEnabled(bool enabled);
 private:
+	static bool inputEnabled;
 	static bool keys[];
 	static bool keysChanged[];
 };

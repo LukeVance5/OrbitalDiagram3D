@@ -10,7 +10,7 @@ public:
 	static void cursorPosCallback(GLFWwindow* window, double _x, double _y);
 	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 	static void mouseWheelCallback(GLFWwindow* window, double dx, double dy);
-
+	static void reset();
 	static double getMouseX();
 	static double getMouseY();
 

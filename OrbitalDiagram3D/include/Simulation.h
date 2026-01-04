@@ -5,6 +5,7 @@
 #include <memory>
 #include "OrbitalDiagram3DExport.h" 
 #include "Body.h"
+#include "PhysicsEngine.h"
 struct ObjectStruct {
 	std::string type;
 	std::vector<std::shared_ptr<Body>> bodies;
@@ -20,6 +21,7 @@ public:
 	std::vector<ObjectStruct> getObjectStructs();
 	unsigned int physics_step = 3;
 	std::shared_ptr<Body> getHost();
+	void pauseUnpauseSimulation();
 private:
 	void addHost(std::shared_ptr<Body> host);
 	std::vector<ObjectStruct> ObjectStructs;
@@ -30,5 +32,7 @@ private:
 	double lastTime;
 	int simSteps[5] = { 1,60, 3600,86400,259200 };
 	std::shared_ptr<Body> host;
+	PhysicsEngine engine;
+	bool paused = false;
 };
 #endif 
