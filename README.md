@@ -6,10 +6,13 @@ A orbital simulation using N-body Physics written in OpenGL. Currently, is hard 
 
 ### How to use
 
-Simulation
+#### Simulation
 
 - , and . control simulation speed from real time to 1s = 3 days
-  Camera
+- P to pause/unpause simulation
+
+#### Camera
+
 - Tracking
 
   - If not Tracking, press Tab to enter Tracking Mode
