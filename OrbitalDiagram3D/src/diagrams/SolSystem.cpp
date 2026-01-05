@@ -111,7 +111,7 @@ void SolSystem::addEarthMoonSystem() {
 		moonPosition,
 		moonVelocity
 	);
-	std::shared_ptr<Body> earth = Body::create("earth", 6.378f, EARTH_MASS, glm::vec3(149597.0f, 0, 0), glm::vec3(0, 0, 0.02987f), body, earthTextureID);
+	std::shared_ptr<Body> earth = Body::create("earth", 6.378f, EARTH_MASS, glm::vec3(149597.0f, 0, 0), glm::vec3(0, 0, -0.02987f), body, earthTextureID);
 	std::shared_ptr<Body> moon = Body::create("moon", 3.734f, MOON_MASS, moonPosition, moonVelocity, body, earth, moonTextureID);
 	earth->orbitColor = glm::vec3(0.1f, 0.25f, 0.6f);
 	moon->orbitColor = glm::vec3(0.98f, 0.95f, 0.88f);

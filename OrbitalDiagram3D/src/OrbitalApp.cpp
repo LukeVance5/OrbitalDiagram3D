@@ -110,6 +110,7 @@ void OrbitalApp::processInput(GLFWwindow* window, double dt) {
 		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
 
 		Keyboard::setEnabled(false);
+		Mouse::setEnabled(false);
 		// Optional: stop mouse look state
 		Mouse::reset();
 	}
@@ -118,6 +119,7 @@ void OrbitalApp::processInput(GLFWwindow* window, double dt) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 		Keyboard::setEnabled(true);
+		Mouse::setEnabled(true);
 		Mouse::reset();
 	}
 	// change mix value

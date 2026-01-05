@@ -1,20 +1,19 @@
-﻿#include "Circle.h"
-#include "OrbitalData.h"
-#include <glad/glad.h>
+﻿#include "LargeCircle.h"
 #include "Shader.h"
 #include "RenderContext.h"
-std::shared_ptr<Circle> Circle::Instance() {
-    const int SEGMENTS = 640;
-	static std::shared_ptr<Circle> instance = std::shared_ptr<Circle>(new Circle(SEGMENTS));
+std::shared_ptr<LargeCircle> LargeCircle::Instance() {
+	const int SEGMENTS = 10000;
+	static std::shared_ptr<LargeCircle> instance(new LargeCircle(SEGMENTS));
 	return instance;
 }
 
-Circle::Circle(const int SEGMENTS) {
-	generateVertices(SEGMENTS);
-	generateBuffers();
+LargeCircle::LargeCircle(const int SEGMENTS) {
+    generateVertices(SEGMENTS);
+    generateBuffers();
 }
 
-void Circle::addInstances(const std::vector<OrbitData>& instanceData) {
+
+void LargeCircle::addInstances(const std::vector<OrbitData>& instanceData) {
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
     glBufferData(
         GL_ARRAY_BUFFER,
@@ -22,22 +21,22 @@ void Circle::addInstances(const std::vector<OrbitData>& instanceData) {
         instanceData.data(),
         GL_DYNAMIC_DRAW
     );
-	this->instanceCount = instanceData.size();
+    this->instanceCount = instanceData.size();
 }
 
-void Circle::bind() const {
+void LargeCircle::bind() const {
     glBindVertexArray(VAO);
 }
 
-void Circle::draw(const RenderContext& renderContext) const {
+void LargeCircle::draw(const RenderContext& renderContext) const {
     bind();
     std::shared_ptr<Shader> shader = renderContext.shader;
 
     shader->activate();
     shader->setMat4("uView", glm::mat4(glm::mat3(renderContext.camera->getViewMatrix())));
     shader->setMat4("uProj", renderContext.projection);
-	shader->set2Float("uViewportSize", renderContext.screenWidth, renderContext.screenHeight);
-	shader->setFloat("uLineWidthPx", 2.5f);
+    shader->set2Float("uViewportSize", renderContext.screenWidth, renderContext.screenHeight);
+    shader->setFloat("uLineWidthPx", 2.5f);
 
     glDrawArraysInstanced(
         GL_LINE_STRIP,
@@ -49,15 +48,15 @@ void Circle::draw(const RenderContext& renderContext) const {
     glBindVertexArray(0);
 }
 
-std::size_t Circle::drawCount() const {
+std::size_t LargeCircle::drawCount() const {
     return vertices.size();
-}   
+}
 
-GLenum Circle::primitive() const {
+GLenum LargeCircle::primitive() const {
     return GL_LINE_STRIP;
 }
 
-void Circle::generateVertices(const int SEGMENTS) {
+void LargeCircle::generateVertices(const int SEGMENTS) {
     vertices.clear();
     vertices.reserve(SEGMENTS + 1); // line pairs for GL_LINES
 
@@ -70,7 +69,7 @@ void Circle::generateVertices(const int SEGMENTS) {
 }
 
 
-void Circle::generateBuffers() {
+void LargeCircle::generateBuffers() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &instanceVBO);
@@ -141,7 +140,6 @@ void Circle::generateBuffers() {
         (void*)offsetof(OrbitData, eccentricity)
     );
     glVertexAttribDivisor(6, 1);
-
     glEnableVertexAttribArray(7);
     glVertexAttribPointer(
         7,

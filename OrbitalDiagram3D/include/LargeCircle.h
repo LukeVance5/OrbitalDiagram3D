@@ -1,6 +1,6 @@
 #pragma once
-#ifndef CIRCLE_H
-#define CIRCLE_H
+#ifndef LARGECIRCLE_H
+#define LARGECIRCLE_H
 #include <vector>
 #include <memory>
 #include "Vertex.h"
@@ -8,9 +8,9 @@
 #include "OrbitalData.h"
 
 struct RenderContext;
-class Circle : public Mesh {
+class LargeCircle : public Mesh {
 public:
-	static std::shared_ptr<Circle> Instance();
+	static std::shared_ptr<LargeCircle> Instance();
 	void bind() const override;
 	std::size_t drawCount() const override;
 	GLenum primitive() const override;
@@ -20,9 +20,9 @@ private:
 	GLuint VAO, VBO, instanceVBO;
 	const float PI = 3.14159265359f;
 	std::vector<Vertex2D> vertices;
-	Circle(const int SEGMENTS);
-	Circle(const Circle&) = delete;
-	Circle& operator= (const Circle&) = delete;
+	LargeCircle(const int SEGMENTS);
+	LargeCircle(const LargeCircle&) = delete;
+	LargeCircle& operator= (const LargeCircle&) = delete;
 	std::size_t instanceCount = 0;
 	void generateVertices(const int SEGMENTS);
 	void generateBuffers();

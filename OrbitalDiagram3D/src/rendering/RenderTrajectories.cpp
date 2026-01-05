@@ -3,12 +3,13 @@
 #include "OrbitalData.h"
 #include "RenderContext.h"
 RenderTrajectories::RenderTrajectories() {
-	circleMesh = Circle::Instance();
+	this->circleMesh = Circle::Instance();
 	this->shader = std::make_shared<Shader>(
 		"assets/shaders/vertex_trajectory.glsl",
 		"assets/shaders/geometry_trajectory.glsl",
 		"assets/shaders/fragment_trajectory.glsl"
 	);
+	this->parentCircleMesh = LargeCircle::Instance();
 }
 
 void RenderTrajectories::drawTrajectories(std::shared_ptr<Body> host, Camera* camera, glm::mat4 projection, int width, int height) {
@@ -26,12 +27,38 @@ void RenderTrajectories::drawTrajectories(std::shared_ptr<Body> host, Camera* ca
 	ctx.projection = projection;
 	ctx.screenWidth = static_cast<float>(width);
 	ctx.screenHeight = static_cast<float>(height);
+	if (curr != host) {
+		OrbitData parentData = orbits.back();
+		orbits.pop_back();
+		std::vector<OrbitData> parentOrbit = { parentData };
+		parentCircleMesh->addInstances(parentOrbit);
+		parentCircleMesh->draw(ctx);
+	}
 	circleMesh->addInstances(orbits);
 	circleMesh->draw(ctx);
 }
 
 void RenderTrajectories::createOrbitalData(std::vector<OrbitData>& orbits, std::shared_ptr<Body> curr, std::shared_ptr<Body> host, glm::vec3 cameraPos) {
 	std::vector<std::shared_ptr<Body>> children = curr->getChildren();
+	for (const auto& child : curr->getChildren()) {
+		const auto& trajOpt = child->getTrajectory();
+		if (trajOpt.has_value()) {
+			const auto& traj = *trajOpt;
+			OrbitData od{};
+			od.semimajorAxis = traj.semiMajorAxis;
+			od.eccentricity = traj.eccentricity;
+			glm::mat3 rotation3 = calculateRotations(traj);
+			glm::mat4 rotation = glm::mat4(rotation3);
+			glm::mat4 model(1.0f);
+			glm::vec3 parentRenderPos =
+				child->getParent()->position - cameraPos;
+			model = glm::translate(model, parentRenderPos);
+			od.color = glm::vec4(child->orbitColor, this->OPACITY);
+			od.model = model * rotation;
+			od.v = traj.v;
+			orbits.push_back(od);
+		}
+	}
 	if (curr != host) {
 		if (curr->getTrajectory().has_value()) {
 			const auto& trajOpt = curr->getTrajectory();
@@ -47,27 +74,11 @@ void RenderTrajectories::createOrbitalData(std::vector<OrbitData>& orbits, std::
 					curr->getParent()->position - cameraPos;
 				model = glm::translate(model, parentRenderPos);
 				od.model = model * rotation;
-				od.color = glm::vec4(curr->orbitColor, 1.0f);
+				od.color = glm::vec4(curr->orbitColor, this->OPACITY);
+				od.v = traj.v;
+				std::cout << traj.v << std::endl;
 				orbits.push_back(od);
 			}
-		}
-	}
-	for (const auto& child : curr->getChildren()) {
-		const auto& trajOpt = child->getTrajectory();
-		if (trajOpt.has_value()) {
-			const auto& traj = *trajOpt;
-			OrbitData od{};
-			od.semimajorAxis = traj.semiMajorAxis;
-			od.eccentricity = traj.eccentricity;
-			glm::mat3 rotation3 = calculateRotations(traj);
-			glm::mat4 rotation = glm::mat4(rotation3);
-			glm::mat4 model(1.0f);
-			glm::vec3 parentRenderPos =
-				child->getParent()->position - cameraPos;
-			model = glm::translate(model, parentRenderPos);
-			od.color = glm::vec4(child->orbitColor, 1.0f);
-			od.model = model * rotation;
-			orbits.push_back(od);
 		}
 	}
 }

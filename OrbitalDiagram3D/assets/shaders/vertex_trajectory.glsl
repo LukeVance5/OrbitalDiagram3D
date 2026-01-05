@@ -7,7 +7,8 @@ layout (location = 0) in vec2 aUnit;
 layout (location = 1) in mat4 oModel;   // rotation + translation
 layout (location = 5) in float oA;      // semi-major axis
 layout (location = 6) in float oE;      // eccentricity
-layout (location = 7) in vec4 oColor;
+layout (location = 7) in float oV;      // nu true anomaly
+layout (location = 8) in vec4 oColor;
 
 uniform mat4 uView;   // <-- REQUIRED
 
@@ -18,6 +19,7 @@ out VS_OUT {
 
 void main()
 {
+    float M_PI = 3.14159265;
     // Map unit circle to your ν convention
     float sinNu = aUnit.x;
     float cosNu = aUnit.y;
@@ -39,7 +41,17 @@ void main()
     vec4 view = uView * world;
 
     vs_out.viewPos = view.xyz;
-    vs_out.color   = oColor;
+    float angle = atan(aUnit.x, aUnit.y);
+    angle = angle < 0.0 ? angle + 2.0 * M_PI : angle;
+    float rad = 75.0f * M_PI / 180.0f;
+    float d = angle - oV;
+    d = mod(d + M_PI, 2.0 * M_PI) - M_PI;
+    if ((d < 0) && (abs(d) < rad)) {
+      vs_out.color  = oColor;
+    } else {
+      vs_out.color  = vec4(oColor.rgb, oColor.a * 0.3);
+    }
+    
 
     // Geometry shader will set final clip-space position
     gl_Position = vec4(0.0);

@@ -12,11 +12,12 @@ double Mouse::scrollDY = 0.0;
 bool Mouse::firstMouse = true;
 bool Mouse::buttons[GLFW_MOUSE_BUTTON_LAST] = { false };
 bool Mouse::buttonsChanged[GLFW_MOUSE_BUTTON_LAST] = { false };
-
+bool Mouse::inputEnabled = true;
 void Mouse::cursorPosCallback(GLFWwindow* window, double _x, double _y) {
 	x = _x;
 	y = _y;
-
+	if (!inputEnabled)
+		return;
 	if (firstMouse) {
 		lastX = x;
 		lastY = y;
@@ -110,4 +111,14 @@ void Mouse::reset()
 	{
 		buttonsChanged[i] = false;
 	}
+}
+
+void Mouse::setEnabled(bool enabled)
+{
+	inputEnabled = enabled;
+}
+
+bool Mouse::isEnabled()
+{
+	return inputEnabled;
 }

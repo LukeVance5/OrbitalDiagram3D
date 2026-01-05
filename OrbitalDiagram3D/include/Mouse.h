@@ -19,7 +19,8 @@ public:
 
 	static double getScrollDX();
 	static double getScrollDY();
-
+	static void setEnabled(bool enabled);
+	static bool isEnabled();
 	static bool button(int button);
 	static bool buttonChanged(int button);
 	static bool buttonWentUp(int button);
@@ -27,7 +28,7 @@ public:
 private:
 	static double x;
 	static double y;
-
+	static bool inputEnabled;
 	static double lastX;
 	static double lastY;
 	static double dx;

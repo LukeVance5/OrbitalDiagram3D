@@ -38,6 +38,7 @@ void Render::update() {
 	camera->updateCameraVectors();
 	glm::mat4 projection = glm::mat4(1.0f);
 	projection = getProjectionMatrix();
+	skybox.draw(projection, camera);
     std::vector<ObjectStruct> objectStructs = simulation->getObjectStructs();
     for (auto& objectStruct : objectStructs) {
         if (!isAllowed(objectStruct.type)) {
@@ -55,8 +56,12 @@ void Render::update() {
 		mesh->draw(renderContext);
     }
     glBindVertexArray(0);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthMask(GL_FALSE);
 	this->renderTrajectories.drawTrajectories(simulation->getHost(),camera,projection, this->SCR_WIDTH,this->SCR_HEIGHT);
-	skybox.draw(projection,camera);
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
     glfwSwapBuffers(window);
     glfwPollEvents();
     return;
